@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Partner;
+use App\Entity\Subscription;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,5 +47,24 @@ class PartnerController extends Controller
             return View::create($partner, Response::HTTP_NO_CONTENT , []); 
                 
         return View::create($partner, Response::HTTP_OK , []);   
+    }
+
+    /**
+     * @Route("/partners/{salt}/subscriptions", methods={"GET"})
+     * @param Request $request
+     * @param string $salt
+     */    
+    public function getPartnerSubscription(Request $request, $salt = null): View
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $partner = $em->getRepository(Partner::class)->findOneBy(array("salt"=>$salt));
+
+        if($partner == null)
+            return View::create($partner, Response::HTTP_NO_CONTENT , []); 
+
+        $subscriptions = $em->getRepository(Subscription::class)->findBy(array("partner"=>$partner->getId()), array("inDate"=>"ASC"));
+                
+        return View::create($subscriptions, Response::HTTP_OK , []);   
     }
 }

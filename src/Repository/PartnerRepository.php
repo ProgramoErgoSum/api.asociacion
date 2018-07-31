@@ -10,56 +10,5 @@ namespace App\Repository;
  */
 class PartnerRepository extends \Doctrine\ORM\EntityRepository
 {
-    public function findAllWithSubscription($case = null)
-    {
-        $partners = $this->getEntityManager()
-            ->createQuery("SELECT p FROM App:Partner p WHERE EXISTS (SELECT s FROM App:Subscription s WHERE s.partner=p.id GROUP BY s.partner) ")
-            ->getResult();
 
-        foreach ($partners as $k=>$partner) {
-            $partner->inDate = $this->getInDate($partner);
-            $partner->outDate = $this->getOutDate($partner);
-
-            $today = new  \DateTime("now");
-            $outDate = new  \DateTime($partner->outDate);
-
-            switch ($case){
-                case 'active':
-                    if($outDate < $today) unset($partners[$k]);
-                    break;
-                case 'expire':
-                    if($outDate >= $today) unset($partners[$k]);
-                    break;
-            }
-        }
-
-        return $partners;
-    }
-
-    public function findAllWithoutSubscription()
-    {
-        $partners = $this->getEntityManager()
-            ->createQuery("SELECT p FROM App:Partner p WHERE NOT EXISTS (SELECT s FROM App:Subscription s WHERE s.partner=p.id GROUP BY s.partner) ")
-            ->getResult();
-
-        return $partners;
-    }
-
-    public function getInDate($partner = null)
-    {
-        $query = $this->getEntityManager()->createQueryBuilder();
-        return $query->select('min(s.inDate)')
-            ->from('App:Subscription', 's')
-            ->where('s.partner = :partner')->setParameter('partner', $partner)
-            ->getQuery()->getSingleScalarResult();
-    }
-
-    public function getOutDate($partner = null)
-    {
-        $query = $this->getEntityManager()->createQueryBuilder();
-        return $query->select('max(s.outDate)')
-            ->from('App:Subscription', 's')
-            ->where('s.partner = :partner')->setParameter('partner', $partner)
-            ->getQuery()->getSingleScalarResult();
-    }
 }

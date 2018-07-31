@@ -39,4 +39,21 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertSame('application/json', $client->getResponse()->headers->get('content-type'));
     }
+
+    public function testGetPartnerSubscription_NO_CONTENT()
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/api/v1/partners/BAD_SALT/subscriptions');
+
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+    }
+
+    public function testGetPartnerSubscription_OK()
+    {
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/api/v1/partners/b2ede222a18710041d55d606b3c49573/subscriptions');
+
+        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
+        $this->assertSame('application/json', $client->getResponse()->headers->get('content-type'));
+    }
 }

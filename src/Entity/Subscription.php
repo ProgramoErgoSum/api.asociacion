@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Entity\Partner;
+
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -59,134 +61,71 @@ class Subscription
      */
     private $price;
 
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * Set inDate
-     *
-     * @param \DateTime $inDate
-     *
-     * @return Subscription
-     */
-    public function setInDate($inDate)
+    public function getInDate(): ?\DateTimeInterface
+    {
+        return $this->inDate;
+    }
+
+    public function setInDate(\DateTimeInterface $inDate): self
     {
         $this->inDate = $inDate;
 
         return $this;
     }
 
-    /**
-     * Get inDate
-     *
-     * @return \DateTime
-     */
-    public function getInDate()
+    public function getOutDate(): ?\DateTimeInterface
     {
-        return $this->inDate;
+        return $this->outDate;
     }
 
-    /**
-     * Set outDate
-     *
-     * @param \DateTime $outDate
-     *
-     * @return Subscription
-     */
-    public function setOutDate($outDate)
+    public function setOutDate(\DateTimeInterface $outDate): self
     {
         $this->outDate = $outDate;
 
         return $this;
     }
 
-    /**
-     * Get outDate
-     *
-     * @return \DateTime
-     */
-    public function getOutDate()
+    public function getInfo(): ?string
     {
-        return $this->outDate;
+        return $this->info;
     }
 
-    /**
-     * Set info
-     *
-     * @param string $info
-     *
-     * @return Subscription
-     */
-    public function setInfo($info)
+    public function setInfo(string $info): self
     {
         $this->info = $info;
 
         return $this;
     }
 
-    /**
-     * Get info
-     *
-     * @return string
-     */
-    public function getInfo()
+    public function getPrice()
     {
-        return $this->info;
+        return $this->price;
     }
 
-    /**
-     * Set price
-     *
-     * @param string $price
-     *
-     * @return Subscription
-     */
-    public function setPrice($price)
+    public function setPrice($price): self
     {
         $this->price = $price;
 
         return $this;
     }
 
-    /**
-     * Get price
-     *
-     * @return string
-     */
-    public function getPrice()
+    public function getPartner(): ?Partner
     {
-        return $this->price;
+        return $this->partner;
     }
 
-    /**
-     * Set partner
-     *
-     * @param \App\Entity\Partner $partner
-     *
-     * @return Subscription
-     */
-    public function setPartner(\App\Entity\Partner $partner)
+    public function setPartner(?Partner $partner): self
     {
         $this->partner = $partner;
 
         return $this;
     }
 
-    /**
-     * Get partner
-     *
-     * @return \App\Entity\Partner
-     */
-    public function getPartner()
-    {
-        return $this->partner;
-    }
+
+    
 }
