@@ -19,16 +19,32 @@ use FOS\RestBundle\View\View;
 class PartnerController extends Controller
 {
     /**
-     * Lists all Partners.
-     * 
      * @Route("/partners", methods={"GET"})
+     * @param Request $request
      */    
-    public function getPartners(Request $request)
+    public function getPartners(Request $request): View
     {
         $em = $this->getDoctrine()->getManager();
 
         $partners = $em->getRepository(Partner::class)->findAll();
                 
         return View::create($partners, Response::HTTP_OK , []);   
+    }
+
+    /**
+     * @Route("/partners/{salt}", methods={"GET"})
+     * @param Request $request
+     * @param string $salt
+     */    
+    public function getPartner(Request $request, $salt = null): View
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $partner = $em->getRepository(Partner::class)->findOneBy(array("salt"=>$salt));
+
+        if($partner == null)
+            return View::create($partner, Response::HTTP_NO_CONTENT , []); 
+                
+        return View::create($partner, Response::HTTP_OK , []);   
     }
 }
