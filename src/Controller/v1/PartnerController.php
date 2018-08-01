@@ -33,16 +33,15 @@ class PartnerController extends Controller
     }
 
     /**
-     * @Route("/partners/{salt}", methods={"GET"})
+     * @Route("/partners/{id_partner}", methods={"GET"})
      * @param Request $request
-     * @param string $salt
+     * @param string $id_partner
      */    
-    public function getPartner(Request $request, $salt = null): View
+    public function getPartner(Request $request, $id_partner = null): View
     {
         $em = $this->getDoctrine()->getManager();
 
-        $partner = $em->getRepository(Partner::class)->findOneBy(array("salt"=>$salt));
-        //$partner = $em->getRepository(Partner::class)->findBySalt($salt);
+        $partner = $em->getRepository(Partner::class)->findOneBy(array("id"=>$id_partner));
 
         if($partner == null)
             return View::create($partner, Response::HTTP_NO_CONTENT , []); 
@@ -51,21 +50,42 @@ class PartnerController extends Controller
     }
 
     /**
-     * @Route("/partners/{salt}/subscriptions", methods={"GET"})
+     * @Route("/partners/{id_partner}/subscriptions", methods={"GET"})
      * @param Request $request
-     * @param string $salt
+     * @param string $id_partner
      */    
-    public function getPartnerSubscription(Request $request, $salt = null): View
+    public function getPartnerSubscription(Request $request, $id_partner = null): View
     {
         $em = $this->getDoctrine()->getManager();
 
-        $partner = $em->getRepository(Partner::class)->findOneBy(array("salt"=>$salt));
+        $partner = $em->getRepository(Partner::class)->findOneBy(array("id"=>$id_partner));
 
         if($partner == null)
             return View::create($partner, Response::HTTP_NO_CONTENT , []); 
+       
+        return View::create($partner->getSubscriptions(), Response::HTTP_OK , []);   
+    }
 
-        $subscriptions = $em->getRepository(Subscription::class)->findBy(array("partner"=>$partner->getId()), array("inDate"=>"ASC"));
-                
+    /**
+     * @Route("/partners/{id_partner}/subscriptions/{id_subscription}", methods={"GET"})
+     * @param Request $request
+     * @param string $id_partner
+     * @param string $id_subscription
+     */    
+    public function getPartnerSubscriptionById(Request $request, $id_partner = null, $id_subscription = null): View
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $partner = $em->getRepository(Partner::class)->findOneBy(array("id"=>$id_partner));
+
+        if($partner == null)
+            return View::create($partner, Response::HTTP_NO_CONTENT , []);
+            
+        $subscriptions = $em->getRepository(Subscription::class)->findBy(array("partner"=>$partner->getId(), 'id'=>$id_subscription));
+
+        if($subscriptions == null)
+            return View::create($partner, Response::HTTP_NO_CONTENT , []); 
+
         return View::create($subscriptions, Response::HTTP_OK , []);   
     }
 }

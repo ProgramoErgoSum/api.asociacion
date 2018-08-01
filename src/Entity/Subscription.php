@@ -22,16 +22,6 @@ class Subscription
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $id;
-	
-	/**
-     * @var \Partner
-     *
-     * @ORM\ManyToOne(targetEntity="Partner")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="id_partner", referencedColumnName="id_partner", nullable=false)
-     * })
-     */
-    private $partner;
 
     /**
      * @var string
@@ -60,6 +50,27 @@ class Subscription
      * @ORM\Column(name="price", type="decimal", scale=2)
      */
     private $price;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Partner", inversedBy="subscriptions")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="id_partner", referencedColumnName="id_partner", nullable=false)
+     * })
+     */
+    private $partner;
+
+    
+    public function getPartner(): ?Partner
+    {
+        return $this->partner;
+    }
+
+    public function setPartner(?Partner $partner): self
+    {
+        $this->partner = $partner;
+
+        return $this;
+    }
 
     public function getId(): ?int
     {
@@ -114,17 +125,7 @@ class Subscription
         return $this;
     }
 
-    public function getPartner(): ?Partner
-    {
-        return $this->partner;
-    }
-
-    public function setPartner(?Partner $partner): self
-    {
-        $this->partner = $partner;
-
-        return $this;
-    }
+    
 
 
     

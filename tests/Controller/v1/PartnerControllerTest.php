@@ -14,46 +14,50 @@ class PartnerControllerTest extends WebTestCase
 
     }
     
-    public function testGetPartners()
+    /**
+     * @dataProvider provide_urls_ok
+     */
+    public function test_url_is_ok($url)
     {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/api/v1/partners');
+        $client = self::createClient();
+        $client->request('GET', $url);
 
+        $this->assertTrue($client->getResponse()->isSuccessful());
         $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
         $this->assertSame('application/json', $client->getResponse()->headers->get('content-type'));
     }
 
-    public function testGetPartner_NO_CONTENT()
+    public function provide_urls_ok()
     {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/api/v1/partners/BAD_SALT');
+        return array(
+            array('/api/v1/partners'),
+            array('/api/v1/partners/1'),
+            array('/api/v1/partners/1/subscriptions'),
+            array('/api/v1/partners/1/subscriptions/1'),
+        );
+    }
 
+
+    /**
+     * @dataProvider provide_urls_no_content
+     */
+    public function test_url_is_no_content($url)
+    {
+        $client = self::createClient();
+        $client->request('GET', $url);
+
+        $this->assertTrue($client->getResponse()->isSuccessful());
         $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
     }
 
-    public function testGetPartner_OK()
+    public function provide_urls_no_content()
     {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/api/v1/partners/b2ede222a18710041d55d606b3c49573');
-
-        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        $this->assertSame('application/json', $client->getResponse()->headers->get('content-type'));
+        return array(
+            array('/api/v1/partners/0'),
+            array('/api/v1/partners/0/subscriptions'),
+            array('/api/v1/partners/0/subscriptions/1'),
+            array('/api/v1/partners/1/subscriptions/0'),
+        );
     }
 
-    public function testGetPartnerSubscription_NO_CONTENT()
-    {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/api/v1/partners/BAD_SALT/subscriptions');
-
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
-    }
-
-    public function testGetPartnerSubscription_OK()
-    {
-        $client = static::createClient();
-        $crawler = $client->request('GET', '/api/v1/partners/b2ede222a18710041d55d606b3c49573/subscriptions');
-
-        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        $this->assertSame('application/json', $client->getResponse()->headers->get('content-type'));
-    }
 }
