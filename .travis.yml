@@ -6,19 +6,20 @@ php:
 env:
   global:
     - APP_ENV: prod
-    - DATABASE_URL=mysql://travis:@127.0.0.1:3306/test
 
 services:
   - mysql
 
 before_install:
   - composer self-update
-  - mysql -e 'create database test'
+  - cp .env.travis.dist .env
+  - cp phpunit.xml.travis.dist phpunit.xml
 
 install:
   - composer install
-  - cp .env.travis.dist .env
-  - cp phpunit.xml.travis.dist phpunit.xml
+  - mysql -e 'create database test'
+
+before_script:
   - php bin/console doctrine:database:drop --force
   - php bin/console doctrine:database:create
   - php bin/console doctrine:schema:update --force
