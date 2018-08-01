@@ -3,6 +3,10 @@ language: php
 php:
   - 7.2
 
+cache:
+  directories:
+    - $HOME/.composer/cache
+    
 env:
   global:
     - APP_ENV: prod
@@ -17,7 +21,7 @@ before_install:
 
 install:
   - composer install
-  - mysql -e 'create database test'
+  - mysql -e 'create database test;'
 
 before_script:
   - php bin/console doctrine:database:drop --force
