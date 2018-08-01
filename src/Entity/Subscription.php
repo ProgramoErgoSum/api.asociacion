@@ -15,8 +15,6 @@ use Doctrine\ORM\Mapping as ORM;
 class Subscription
 {
     /**
-     * @var integer
-     *
      * @ORM\Column(name="id_subscription", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
@@ -24,29 +22,21 @@ class Subscription
     private $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="in_date", type="datetime")
      */
     private $inDate;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="out_date", type="datetime")
      */
     private $outDate;
 	
 	/**
-     * @var string
-     *
      * @ORM\Column(name="info", type="string", length=255)
      */
     private $info;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="price", type="decimal", scale=2)
      */
     private $price;

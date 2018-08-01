@@ -18,8 +18,6 @@ class Partner
     const ROLE_PREMIUM=1;
 
     /**
-     * @var integer
-     *
      * @ORM\Column(name="id_partner", type="integer")
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
@@ -27,71 +25,51 @@ class Partner
     private $id;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="code", type="string", length=6)
      */
     private $code;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="name", type="string", length=255)
      */
     private $name;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="surname", type="string", length=255)
      */
     private $surname;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="email", type="string", length=255)
      */
     private $email;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="password", type="string", length=255)
      */
     private $password;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="salt", type="string", length=255)
      */
     private $salt;
 
     /**
-     * @var int
-     *
      * @ORM\Column(name="role", type="integer")
      */
     private $role=1;
 
     /**
-     * @var int
-     *
      * @ORM\Column(name="active", type="integer")
      */
     private $active=1;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="cdate", type="datetime")
      */
     private $cdate;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="mdate", type="datetime")
      */
     private $mdate;
