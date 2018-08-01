@@ -8,3 +8,21 @@ env:
   global:
     - APP_ENV: prod
 
+services:
+  - mysql
+
+before_install:
+  - composer self-update
+  - mysql -e 'create database test'
+
+install:
+  - composer install
+  - cp .env.dist .env
+  - cp phpunit.xml.dist phpunit.xml
+  - php bin/console doctrine:database:drop --force
+  - php bin/console doctrine:database:create
+  - php bin/console doctrine:schema:update --force
+  - php bin/console doctrine:fixtures:load --no-interaction
+
+script:
+  - phpunit
