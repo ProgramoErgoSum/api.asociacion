@@ -24,8 +24,8 @@ install:
   - mysql -e 'create database test;'
 
 before_script:
-  - php bin/console doctrine:database:drop --force
-  - php bin/console doctrine:database:create
+  #- php bin/console doctrine:database:drop --force
+  #- php bin/console doctrine:database:create
   - php bin/console doctrine:schema:update --force
   - php bin/console doctrine:fixtures:load --no-interaction
 
