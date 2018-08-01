@@ -42,6 +42,7 @@ class PartnerController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         $partner = $em->getRepository(Partner::class)->findOneBy(array("salt"=>$salt));
+        //$partner = $em->getRepository(Partner::class)->findBySalt($salt);
 
         if($partner == null)
             return View::create($partner, Response::HTTP_NO_CONTENT , []); 
