@@ -6,6 +6,7 @@ php:
 env:
   global:
     - APP_ENV: prod
+    - DATABASE_URL=mysql://travis:@127.0.0.1:3306/test
 
 services:
   - mysql
