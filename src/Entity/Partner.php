@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\UserInterface;
-
 
 /**
  * Partner
@@ -12,9 +10,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @ORM\Table(name="partners")
  * @ORM\Entity(repositoryClass="App\Repository\PartnerRepository")
  */
-class Partner implements UserInterface
+class Partner
 {
-    //const ROLE_USER=0;
+    const ROLE_USER=0;
     const ROLE_PREMIUM=1;
 
     /**
@@ -96,288 +94,129 @@ class Partner implements UserInterface
      */
     private $mdate;
 
-
-
-
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * Set code
-     *
-     * @param string $code
-     *
-     * @return Partner
-     */
-    public function setCode($code)
+    public function getCode(): ?string
+    {
+        return $this->code;
+    }
+
+    public function setCode(string $code): self
     {
         $this->code = $code;
 
         return $this;
     }
 
-    /**
-     * Get code
-     *
-     * @return string
-     */
-    public function getCode()
+    public function getName(): ?string
     {
-        return $this->code;
+        return $this->name;
     }
 
-    /**
-     * Set name
-     *
-     * @param string $name
-     *
-     * @return Partner
-     */
-    public function setName($name)
+    public function setName(string $name): self
     {
         $this->name = $name;
 
         return $this;
     }
 
-    /**
-     * Get name
-     *
-     * @return string
-     */
-    public function getName()
+    public function getSurname(): ?string
     {
-        return $this->name;
+        return $this->surname;
     }
 
-    /**
-     * Set surname
-     *
-     * @param string $surname
-     *
-     * @return Partner
-     */
-    public function setSurname($surname)
+    public function setSurname(string $surname): self
     {
         $this->surname = $surname;
 
         return $this;
     }
 
-    /**
-     * Get surname
-     *
-     * @return string
-     */
-    public function getSurname()
+    public function getEmail(): ?string
     {
-        return $this->surname;
+        return $this->email;
     }
 
-    /**
-     * Set email
-     *
-     * @param string $email
-     *
-     * @return Partner
-     */
-    public function setEmail($email)
+    public function setEmail(string $email): self
     {
         $this->email = $email;
 
         return $this;
     }
 
-    /**
-     * Get email
-     *
-     * @return string
-     */
-    public function getEmail()
+    public function getPassword(): ?string
     {
-        return $this->email;
+        return $this->password;
     }
 
-    /**
-     * Set password
-     *
-     * @param string $password
-     *
-     * @return Admin
-     */
-    public function setPassword($password)
+    public function setPassword(string $password): self
     {
         $this->password = $password;
 
         return $this;
     }
 
-    /**
-     * Get password
-     *
-     * @return string
-     */
-    public function getPassword()
+    public function getSalt(): ?string
     {
-        return $this->password;
+        return $this->salt;
     }
 
-    /**
-     * Set salt
-     *
-     * @param string $salt
-     *
-     * @return Admin
-     */
-    public function setSalt($salt)
+    public function setSalt(string $salt): self
     {
         $this->salt = $salt;
 
         return $this;
     }
 
-    /**
-     * Get salt
-     *
-     * @return string
-     */
-    public function getSalt()
+    public function getRole(): ?int
     {
-        return $this->salt;
+        return $this->role;
     }
 
-    /**
-     * Get Roles
-     *
-     * @return array
-     */
-    function getRoles()
-    {
-        switch ($this->role){
-            //case self::ROLE_USER: return array('ROLE_USER');
-            case self::ROLE_PREMIUM: return array('ROLE_PREMIUM');
-        }
-    }
-
-    /**
-     * Set role
-     *
-     * @param integer $role
-     *
-     * @return Partner
-     */
-    public function setRole($role)
+    public function setRole(int $role): self
     {
         $this->role = $role;
 
         return $this;
     }
 
-    /**
-     * Get role
-     *
-     * @return integer
-     */
-    public function getRole()
+    public function getActive(): ?int
     {
-        return $this->role;
+        return $this->active;
     }
 
-    /**
-     * Set active
-     *
-     * @param integer $active
-     *
-     * @return Partner
-     */
-    public function setActive($active)
+    public function setActive(int $active): self
     {
         $this->active = $active;
 
         return $this;
     }
 
-    /**
-     * Get active
-     *
-     * @return integer
-     */
-    public function getActive()
+    public function getCdate(): ?\DateTimeInterface
     {
-        return $this->active;
+        return $this->cdate;
     }
 
-    /**
-     * Set cdate
-     *
-     * @param \DateTime $cdate
-     *
-     * @return Partner
-     */
-    public function setCdate($cdate)
+    public function setCdate(\DateTimeInterface $cdate): self
     {
         $this->cdate = $cdate;
 
         return $this;
     }
 
-    /**
-     * Get cdate
-     *
-     * @return \DateTime
-     */
-    public function getCdate()
+    public function getMdate(): ?\DateTimeInterface
     {
-        return $this->cdate;
+        return $this->mdate;
     }
 
-    /**
-     * Set mdate
-     *
-     * @param \DateTime $mdate
-     *
-     * @return Partner
-     */
-    public function setMdate($mdate)
+    public function setMdate(\DateTimeInterface $mdate): self
     {
         $this->mdate = $mdate;
 
         return $this;
     }
 
-    /**
-     * Get mdate
-     *
-     * @return \DateTime
-     */
-    public function getMdate()
-    {
-        return $this->mdate;
-    }
-
-    /**
-     * eraseCredentials
-     */
-    function eraseCredentials()
-    {
-
-    }
-
-    /**
-     * Get Username
-     *
-     * @return string
-     */
-    function getUsername()
-    {
-        return $this->getEmail();
-    }
 }
