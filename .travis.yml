@@ -1,0 +1,34 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+
+sudo: false
+
+env:
+  global:
+    - APP_ENV: prod
+
+services:
+  - mysql
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
+before_install:
+  - composer self-update
+  - mysql -e 'create database test'
+
+install:
+  - composer install
+  - cp .env.dist .env
+  - cp phpunit.xml.dist phpunit.xml
+  - php bin/console doctrine:database:drop --force
+  - php bin/console doctrine:database:create
+  - php bin/console doctrine:schema:update --force
+  - php bin/console doctrine:fixtures:load --no-interaction
+
+script:
+  - phpunit
