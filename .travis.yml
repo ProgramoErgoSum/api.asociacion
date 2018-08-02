@@ -17,8 +17,8 @@ services:
 
 before_install:
   - composer self-update
-  - cp .env.travis.dist .env
-  - cp phpunit.xml.travis.dist phpunit.xml
+  - cp .env.dist .env
+  - cp phpunit.xml.dist phpunit.xml
 
 install:
   - composer install
