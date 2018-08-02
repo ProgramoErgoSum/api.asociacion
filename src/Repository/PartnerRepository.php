@@ -15,16 +15,29 @@ class PartnerRepository extends ServiceEntityRepository
         parent::__construct($registry, Partner::class);
     }
 
-
-    public function findBySalt($salt = null)
+    public function formValidate($request)
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.salt = :val')
-            ->setParameter('val', $salt)
-            //->orderBy('p.id', 'ASC')
-            //->setMaxResults(10)
-            ->getQuery()
-            ->getResult();
-    }
+        if(!isset($request['name']) || !isset($request['surname']) || !isset($request['email']) || !isset($request['active']) || !isset($request['role']))
+            return false;
 
+        foreach($request as $key=>$value){
+            switch($key){
+                case 'name':
+                case 'surname':
+                    break;
+                case 'email':
+                    if(!strpos($value, "@") || !strpos($value, ".")) 
+                        return false;
+                    break;
+                case 'active':
+                case 'role':
+                    if(!is_numeric($value)) 
+                        return false;
+                    break;
+            }
+        }
+        
+        return true;
+    }
+    
 }
