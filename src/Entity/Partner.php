@@ -57,12 +57,12 @@ class Partner
     /**
      * @ORM\Column(name="role", type="integer")
      */
-    private $role=1;
+    private $role;
 
     /**
      * @ORM\Column(name="active", type="integer")
      */
-    private $active=1;
+    private $active;
 
     /**
      * @ORM\Column(name="cdate", type="datetime")
