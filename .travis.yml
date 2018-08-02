@@ -9,7 +9,7 @@ cache:
     
 env:
   global:
-    - APP_ENV: prod
+    - APP_ENV: dev
     - DATABASE_URL: 'mysql://root:@127.0.0.1:3306/test'
 
 services:
