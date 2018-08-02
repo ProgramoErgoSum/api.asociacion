@@ -19,7 +19,7 @@ class PartnerControllerTest extends WebTestCase
      */
     public function test_url_is_ok($url)
     {
-        $client = self::createClient();
+        $client = static::createClient();
         $client->request('GET', $url);
 
         $this->assertTrue($client->getResponse()->isSuccessful());
@@ -43,7 +43,7 @@ class PartnerControllerTest extends WebTestCase
      */
     public function test_url_is_no_content($url)
     {
-        $client = self::createClient();
+        $client = static::createClient();
         $client->request('GET', $url);
 
         $this->assertTrue($client->getResponse()->isSuccessful());
