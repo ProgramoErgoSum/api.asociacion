@@ -9,9 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PartnerControllerTest extends WebTestCase
 {
+    private $client = null;
+
     protected function setUp()
 	{
-
+        $this->client = static::createClient();
     }
     
     /**
@@ -19,12 +21,13 @@ class PartnerControllerTest extends WebTestCase
      */
     public function test_url_is_ok($url)
     {
-        $client = static::createClient();
+        $client = $this->client;
         $client->request('GET', $url);
+        $response = $client->getResponse();
 
-        $this->assertTrue($client->getResponse()->isSuccessful());
-        $this->assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
-        $this->assertSame('application/json', $client->getResponse()->headers->get('content-type'));
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
     }
 
     public function provide_urls_ok()
@@ -43,11 +46,12 @@ class PartnerControllerTest extends WebTestCase
      */
     public function test_url_is_no_content($url)
     {
-        $client = static::createClient();
+        $client = $this->client;
         $client->request('GET', $url);
+        $response = $client->getResponse();
 
-        $this->assertTrue($client->getResponse()->isSuccessful());
-        $this->assertEquals(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function provide_urls_no_content()
