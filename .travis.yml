@@ -1,24 +1,30 @@
 language: php
 
 php:
-  - 7.1.3
   - 7.2
 
+cache:
+  directories:
+    - $HOME/.composer/cache
+    
 env:
   global:
-    - APP_ENV: prod
+    - APP_ENV: dev
+    - DATABASE_URL: 'mysql://root:@127.0.0.1:3306/test'
 
 services:
   - mysql
 
 before_install:
   - composer self-update
-  - mysql -e 'create database test'
+  - cp .env.dist .env
+  - cp phpunit.xml.dist phpunit.xml
 
 install:
   - composer install
-  - cp .env.dist .env
-  - cp phpunit.xml.travis.dist phpunit.xml
+  - mysql -e 'create database test;'
+
+before_script:
   - php bin/console doctrine:database:drop --force
   - php bin/console doctrine:database:create
   - php bin/console doctrine:schema:update --force
