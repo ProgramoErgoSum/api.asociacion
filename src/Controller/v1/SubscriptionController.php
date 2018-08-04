@@ -23,7 +23,7 @@ class SubscriptionController extends Controller
      * @Route("/partners/{id_partner}/subscriptions", methods={"GET"})
      * @param string $id_partner
      */    
-    public function getPartnersIdSubscriptions($id_partner = null): View
+    public function getSubscriptions($id_partner = null): View
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -44,17 +44,20 @@ class SubscriptionController extends Controller
      * @Route("/partners/{id_partner}/subscriptions", methods={"POST"})
      * @param Request $request
      */    
-    public function postPartnersIdSubscriptions(Request $request): View
+    public function postSubscriptions(Request $request): View
     {
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository(Subscription::class);
 
-        if(!$repo->formValidate($request->request->all())){
-            $error = [
-                'code'=>Response::HTTP_BAD_REQUEST,
-                'message'=>'Values are invalid',
-                'description'=>'The next fields are required {inDate[date], outDate[date], info[str], price[float]}'
-            ];
+        // Todos los campos requeridos
+        $error = $repo->formPost($request->request->all());
+        if(is_array($error)){
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        // Todos los campos válidos
+        $error = $repo->formValidate($request->request->all());
+        if(is_array($error)){
             return View::create($error, Response::HTTP_BAD_REQUEST); 
         }
         
@@ -78,7 +81,7 @@ class SubscriptionController extends Controller
      * @param string $id_partner
      * @param string $id_subscription
      */    
-    public function getPartnersIdSubscriptionsId($id_partner = null, $id_subscription = null): View
+    public function getSubscriptionsId($id_partner = null, $id_subscription = null): View
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -104,4 +107,69 @@ class SubscriptionController extends Controller
 
         return View::create($subscription, Response::HTTP_OK);   
     }
+
+    /**
+     * @Route("/partners/{id_partner}/subscriptions/{id_subscription}", methods={"PATCH"})
+     * @param Request $request
+     * @param string $id_partner
+     * @param string $id_subscription
+     */    
+    public function patchSubscriptionsId(Request $request, $id_partner = null, $id_subscription = null): View
+    {
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository(Subscription::class);
+
+        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
+        if($partner === null){
+            $error = [
+                'code'=>Response::HTTP_BAD_REQUEST,
+                'message'=>'Not found',
+                'description'=>'The partner not exist'
+            ];
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        $subscription = $em->getRepository(Subscription::class)->findOneBy(array('partner'=>$partner->getId(), 'id'=>$id_subscription));
+        if($subscription === null){
+            $error = [
+                'code'=>Response::HTTP_BAD_REQUEST,
+                'message'=>'Not found',
+                'description'=>'The subscription not exist'
+            ];
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        // Algunos campos requeridos
+        $error = $repo->formPatch($request->request->all());
+        if(is_array($error)){
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        // Todos los campos válidos
+        $error = $repo->formValidate($request->request->all());
+        if(is_array($error)){
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        if($request->get('inDate'))
+            $subscription->setInDate(new \DateTime($request->get('inDate')));
+
+        if($request->get('outDate'))
+            $subscription->setOutDate(new \DateTime($request->get('outDate')));
+
+        if($request->get('info'))
+            $subscription->setInfo($request->get('info'));
+
+        if($request->get('price'))
+            $subscription->setPrice($request->get('price'));
+
+        //$subscription->setMDate(new \DateTime('now'));
+        $em->persist($subscription);
+        //$em->flush();
+        
+        return View::create($subscription, Response::HTTP_CREATED);  
+    }
+
+
+    // Falta delete subscriptions
 }

@@ -112,7 +112,7 @@ class PartnerController extends Controller
      * @param Request $request
      * @param string $id_partner
      */    
-    public function patchPartners(Request $request, $id_partner = null): View
+    public function patchPartnersId(Request $request, $id_partner = null): View
     {
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository(Partner::class);
@@ -163,5 +163,7 @@ class PartnerController extends Controller
         
         return View::create($partner, Response::HTTP_CREATED);  
     }
+
+    // Falta delete
 
 }

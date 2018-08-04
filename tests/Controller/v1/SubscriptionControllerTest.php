@@ -112,4 +112,60 @@ class SubscriotionControllerTest extends WebTestCase
             array(array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'BAD')), // Notar precio inválido
         );
     }
+
+
+
+    /**
+     * @dataProvider provide_PATCH_subscriptions_HTTP_CREATED
+     */
+    public function test_PATCH_subscriptions_HTTP_CREATED($data)
+    {
+        $client = $this->client;
+        $client->request('PATCH', '/api/v1/partners/1/subscriptions/1', $data);
+        $response = $client->getResponse();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+    public function provide_PATCH_subscriptions_HTTP_CREATED()
+    {
+        return array(
+            array(array('inDate'=>'2019-08-02')),
+            array(array('outDate'=>'2020-08-02')),
+            array(array('info'=>'nueva info')),
+            array(array('price'=>'1.2')),
+        );
+    }
+
+    /**
+     * @dataProvider provide_PATCH_subscriptions_HTTP_BAD_REQUEST
+     */
+    public function test_PATCH_subscriptions_HTTP_BAD_REQUEST($data)
+    {
+        $client = $this->client;
+        $client->request('PATCH', '/api/v1/partners/1/subscriptions/1', $data);
+        $response = $client->getResponse();
+
+        $this->assertFalse($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+    public function provide_PATCH_subscriptions_HTTP_BAD_REQUEST()
+    {
+        return array(
+            array(array()),
+            array(array('inDate'=>'')),
+            array(array('inDate'=>'BAD')),
+            array(array('outDate'=>'BAD')),
+            array(array('info'=>'')),
+            array(array('price'=>'a')),
+            array(array('price'=>'1,5')), // Notar la coma (,) debe ser punto
+        );
+    }
+
+
+
+
+    // Faltan tests para delete
 }

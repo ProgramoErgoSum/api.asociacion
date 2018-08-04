@@ -112,14 +112,11 @@ class PartnerControllerTest extends WebTestCase
     }
 
 
-
-
-
     
     /**
-     * @dataProvider provide_patch_partners_HTTP_CREATED
+     * @dataProvider provide_PATCH_partners_HTTP_CREATED
      */
-    public function test_patch_partners_HTTP_CREATED($data)
+    public function test_PATCH_partners_HTTP_CREATED($data)
     {
         $client = $this->client;
         $client->request('PATCH', '/api/v1/partners/1', $data);
@@ -129,7 +126,7 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    public function provide_patch_partners_HTTP_CREATED()
+    public function provide_PATCH_partners_HTTP_CREATED()
     {
         return array(
             array(array('name'=>'nuevo nombre')),
@@ -142,9 +139,9 @@ class PartnerControllerTest extends WebTestCase
     }
 
     /**
-     * @dataProvider provide_patch_partners_HTTP_BAD_REQUEST
+     * @dataProvider provide_PATCH_partners_HTTP_BAD_REQUEST
      */
-    public function test_patch_partners_HTTP_BAD_REQUEST($data)
+    public function test_PATCH_partners_HTTP_BAD_REQUEST($data)
     {
         $client = $this->client;
         $client->request('PATCH', '/api/v1/partners/1', $data);
@@ -154,7 +151,7 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    public function provide_patch_partners_HTTP_BAD_REQUEST()
+    public function provide_PATCH_partners_HTTP_BAD_REQUEST()
     {
         return array(
             array(array()),
@@ -167,4 +164,8 @@ class PartnerControllerTest extends WebTestCase
         );
     }
 
+
+
+
+    // Faltan tests para delete
 }
