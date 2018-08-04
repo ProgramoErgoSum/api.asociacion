@@ -3,7 +3,6 @@
 namespace App\Repository;
 
 use App\Entity\Partner;
-//use App\Entity\Subscription;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -24,6 +23,8 @@ class PartnerRepository extends ServiceEntityRepository
             switch($key){
                 case 'name':
                 case 'surname':
+                    if(empty($value))
+                        return false;
                     break;
                 case 'email':
                     if(!strpos($value, "@") || !strpos($value, ".")) 
@@ -39,5 +40,4 @@ class PartnerRepository extends ServiceEntityRepository
         
         return true;
     }
-    
 }

@@ -16,6 +16,8 @@ class PartnerControllerTest extends WebTestCase
         $this->client = static::createClient();
     }
     
+
+    
     /**
      * @dataProvider provide_urls_HTTP_OK
      */
@@ -63,8 +65,9 @@ class PartnerControllerTest extends WebTestCase
     }
 
 
+
     /**
-     * @dataProvider provide_data_HTTP_CREATED
+     * @dataProvider provide_post_partners_HTTP_CREATED
      */
     public function test_post_partners_HTTP_CREATED($data)
     {
@@ -76,15 +79,17 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    public function provide_data_HTTP_CREATED()
+    public function provide_post_partners_HTTP_CREATED()
     {
         return array(
             array(array('name'=>'name','surname'=>'surname','email'=>'email@email.com','active'=>'1','role'=>'1')),
         );
     }
 
+
+
     /**
-     * @dataProvider provide_data_HTTP_BAD_REQUEST
+     * @dataProvider provide_post_partners_HTTP_BAD_REQUEST
      */
     public function test_post_partners_HTTP_BAD_REQUEST($data)
     {
@@ -96,7 +101,7 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    public function provide_data_HTTP_BAD_REQUEST()
+    public function provide_post_partners_HTTP_BAD_REQUEST()
     {
         return array(
             array(array()),
@@ -106,10 +111,66 @@ class PartnerControllerTest extends WebTestCase
             array(array('name'=>'name','surname'=>'surname','email'=>'email'              ,'role'=>'1')),
             array(array('name'=>'name','surname'=>'surname','email'=>'email','active'=>'1'            )),
             
+            array(array('name'=>'','surname'=>'surname','email'=>'email','active'=>'1','role'=>'1')), // Notar name inválido
+            array(array('name'=>'name','surname'=>'','email'=>'email','active'=>'1','role'=>'1')), // Notar surname inválido
             array(array('name'=>'name','surname'=>'surname','email'=>'email','active'=>'1','role'=>'1')), // Notar que el email no es válido (@.)
             array(array('name'=>'name','surname'=>'surname','email'=>'e@e.e','active'=>'a','role'=>'1')), // Notar que active no es válido
             array(array('name'=>'name','surname'=>'surname','email'=>'e@e.e','active'=>'1','role'=>'a')), // Notar que role no es válido
             array(array('name'=>'name','surname'=>'surname','email'=>'email1@email.com','active'=>'1','role'=>'1')), // Notar que el email ya existe
+        );
+    }
+
+    
+
+    /**
+     * @dataProvider provide_post_partners_subscriptions_HTTP_CREATED
+     */
+    public function test_post_partners_subscriptions_HTTP_CREATED($data)
+    {
+        $client = $this->client;
+        $client->request('POST', '/api/v1/partners/1/subscriptions', $data);
+        $response = $client->getResponse();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+    public function provide_post_partners_subscriptions_HTTP_CREATED()
+    {
+        return array(
+            array(array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'1')),
+            array(array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'1.1')),
+        );
+    }
+
+    /**
+     * @dataProvider provide_post_partners_subscriptions_HTTP_BAD_REQUEST
+     */
+    public function test_post_partners_subscriptions_HTTP_BAD_REQUEST($data)
+    {
+        $client = $this->client;
+        $client->request('POST', '/api/v1/partners/1/subscriptions', $data);
+        $response = $client->getResponse();
+
+        $this->assertFalse($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+    public function provide_post_partners_subscriptions_HTTP_BAD_REQUEST()
+    {
+        return array(
+            array(array()),
+            array(array(                 'outDate'=>'date','info'=>'info','price'=>'1')),
+            array(array('inDate'=>'date'                  ,'info'=>'info','price'=>'1')),
+            array(array('inDate'=>'date','outDate'=>'date'               ,'price'=>'1')),
+            array(array('inDate'=>'date','outDate'=>'date','info'=>'info'             )),
+            array(array('inDate'=>'date','outDate'=>'date','info'=>'info','price'=>'1')),
+            
+            array(array('inDate'=>'BAD','outDate'=>'2018-08-02','info'=>'info','price'=>'1')), // Notar fecha inválida
+            array(array('inDate'=>'02-08-2018','outDate'=>'2018-08-02','info'=>'info','price'=>'1')), // Notar fecha inválida
+            array(array('inDate'=>'2018-08-02 00:00:00','outDate'=>'2018-08-02','info'=>'info','price'=>'1')), // Notar fecha inválida
+            array(array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'','price'=>'1')), // Notar info inválido
+            array(array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'BAD')), // Notar precio inválido
         );
     }
 }
