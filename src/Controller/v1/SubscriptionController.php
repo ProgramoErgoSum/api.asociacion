@@ -41,42 +41,6 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * @Route("/partners/{id_partner}/subscriptions", methods={"POST"})
-     * @param Request $request
-     */    
-    public function postSubscriptions(Request $request): View
-    {
-        $em = $this->getDoctrine()->getManager();
-        $repo = $em->getRepository(Subscription::class);
-
-        // Todos los campos requeridos
-        $error = $repo->formPost($request->request->all());
-        if(is_array($error)){
-            return View::create($error, Response::HTTP_BAD_REQUEST); 
-        }
-
-        // Todos los campos válidos
-        $error = $repo->formValidate($request->request->all());
-        if(is_array($error)){
-            return View::create($error, Response::HTTP_BAD_REQUEST); 
-        }
-        
-        $subscription = new Subscription();
-        $subscription->setInDate(new \DateTime($request->get('inDate')));
-        $subscription->setOutDate(new \DateTime($request->get('outDate')));
-        $subscription->setInfo($request->get('info'));
-        $subscription->setPrice($request->get('price'));
-        //$subscription->setCDate(new \DateTime('now'));
-        //$subscription->setMDate(new \DateTime('0000-00-00 00:00:00'));
-        $em->persist($subscription);
-        //$em->flush();
-        
-        return View::create($subscription, Response::HTTP_CREATED);  
-    }
-
-
-
-    /**
      * @Route("/partners/{id_partner}/subscriptions/{id_subscription}", methods={"GET"})
      * @param string $id_partner
      * @param string $id_subscription
@@ -106,6 +70,50 @@ class SubscriptionController extends Controller
         }
 
         return View::create($subscription, Response::HTTP_OK);   
+    }
+
+    /**
+     * @Route("/partners/{id_partner}/subscriptions", methods={"POST"})
+     * @param string $id_partner
+     * @param Request $request
+     */    
+    public function postSubscriptions(Request $request, $id_partner = null): View
+    {
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository(Subscription::class);
+
+        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
+        if($partner === null){
+            $error = [
+                'code'=>Response::HTTP_BAD_REQUEST,
+                'message'=>'Not found',
+                'description'=>'The partner not exist'
+            ];
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        // Todos los campos requeridos
+        $error = $repo->formPost($request->request->all());
+        if(is_array($error)){
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        // Todos los campos válidos
+        $error = $repo->formValidate($request->request->all());
+        if(is_array($error)){
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+        
+        $subscription = new Subscription();
+        $subscription->setPartner($partner);
+        $subscription->setInDate(new \DateTime($request->get('inDate')));
+        $subscription->setOutDate(new \DateTime($request->get('outDate')));
+        $subscription->setInfo($request->get('info'));
+        $subscription->setPrice($request->get('price'));
+        $em->persist($subscription);
+        $em->flush();
+        
+        return View::create($subscription, Response::HTTP_CREATED);  
     }
 
     /**
@@ -163,9 +171,8 @@ class SubscriptionController extends Controller
         if($request->get('price'))
             $subscription->setPrice($request->get('price'));
 
-        //$subscription->setMDate(new \DateTime('now'));
         $em->persist($subscription);
-        //$em->flush();
+        $em->flush();
         
         return View::create($subscription, Response::HTTP_CREATED);  
     }
@@ -200,8 +207,8 @@ class SubscriptionController extends Controller
             return View::create($error, Response::HTTP_BAD_REQUEST); 
         }
 
-        $em->remove($partner);
-        //$em->flush();
+        $em->remove($subscription);
+        $em->flush();
         
         return View::create(null, Response::HTTP_ACCEPTED);  
     }

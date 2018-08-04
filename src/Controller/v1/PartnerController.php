@@ -32,6 +32,27 @@ class PartnerController extends Controller
     }
 
     /**
+     * @Route("/partners/{id_partner}", methods={"GET"})
+     * @param string $id_partner
+     */    
+    public function getPartnersId($id_partner = null): View
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
+        if($partner === null){
+            $error = [
+                'code'=>Response::HTTP_BAD_REQUEST,
+                'message'=>'Not found',
+                'description'=>'The partner not exist'
+            ];
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+                
+        return View::create($partner, Response::HTTP_OK);   
+    }
+
+    /**
      * @Route("/partners", methods={"POST"})
      * @param Request $request
      */    
@@ -77,36 +98,14 @@ class PartnerController extends Controller
         $partner->setSalt(md5(uniqid()));
         $partner->setPassword(password_hash($partner->getCode(), PASSWORD_BCRYPT, array('cost' => 4)));
         $partner->setCDate(new \DateTime('now'));
-        $partner->setMDate(new \DateTime('0000-00-00 00:00:00'));
+        $partner->setMDate(new \DateTime('now'));
         $em->persist($partner);
-        //$em->flush();
+        $em->flush();
         
+        $partner = $em->getRepository(Partner::class)->findOneBy(array('code'=>$partner->getCode()));
         return View::create($partner, Response::HTTP_CREATED);  
     }
-
     
-
-    /**
-     * @Route("/partners/{id_partner}", methods={"GET"})
-     * @param string $id_partner
-     */    
-    public function getPartnersId($id_partner = null): View
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
-        if($partner === null){
-            $error = [
-                'code'=>Response::HTTP_BAD_REQUEST,
-                'message'=>'Not found',
-                'description'=>'The partner not exist'
-            ];
-            return View::create($error, Response::HTTP_BAD_REQUEST); 
-        }
-                
-        return View::create($partner, Response::HTTP_OK);   
-    }
-
     /**
      * @Route("/partners/{id_partner}", methods={"PATCH"})
      * @param Request $request
@@ -159,7 +158,7 @@ class PartnerController extends Controller
 
         $partner->setMDate(new \DateTime('now'));
         $em->persist($partner);
-        //$em->flush();
+        $em->flush();
         
         return View::create($partner, Response::HTTP_CREATED);  
     }
@@ -195,7 +194,7 @@ class PartnerController extends Controller
         }
 
         $em->remove($partner);
-        //$em->flush();
+        $em->flush();
         
         return View::create(null, Response::HTTP_ACCEPTED);  
     }

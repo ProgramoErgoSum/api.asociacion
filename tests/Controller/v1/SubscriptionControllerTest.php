@@ -16,25 +16,38 @@ class SubscriotionControllerTest extends WebTestCase
     
 
 
-    /**
-     * @dataProvider provide_test_GET_subscriptions_HTTP_OK
-     */
-    public function test_GET_subscriptions_HTTP_OK($url)
+    // ##################################################################################
+    // ###################################   GET   ######################################
+    // ##################################################################################
+
+
+
+    public function test_GET_subscriptions_HTTP_OK()
     {
         $client = $this->client;
-        $client->request('GET', $url);
+        $client->request('GET', '/api/v1/partners/1/subscriptions');
         $response = $client->getResponse();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
+
+        $content = json_decode($response->getcontent(), true);
+        $this->assertEquals('4', count($content));
     }
-    public function provide_test_GET_subscriptions_HTTP_OK()
+
+    public function test_GET_subscriptions_id_HTTP_OK()
     {
-        return array(
-            array('/api/v1/partners/1/subscriptions'),
-            array('/api/v1/partners/1/subscriptions/1')
-        );
+        $client = $this->client;
+        $client->request('GET', '/api/v1/partners/1/subscriptions/1');
+        $response = $client->getResponse();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+
+        $content = json_decode($response->getcontent(), true);
+        $this->assertEquals('1', $content['id']);
     }
 
     /**
@@ -58,28 +71,34 @@ class SubscriotionControllerTest extends WebTestCase
             array('/api/v1/partners/1/subscriptions/0'),
         );
     }
-     
 
 
-    /**
-     * @dataProvider provide_POST_subscriptions_HTTP_CREATED
-     */
-    public function test_POST_subscriptions_HTTP_CREATED($data)
+
+    // ##################################################################################
+    // ##################################   POST   ######################################
+    // ##################################################################################
+    
+    
+
+    public function test_POST_subscriptions_HTTP_CREATED()
     {
         $client = $this->client;
-        $client->request('POST', '/api/v1/partners/1/subscriptions', $data);
+        $post = array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'1.1');
+        $client->request('POST', '/api/v1/partners/1/subscriptions', $post);
         $response = $client->getResponse();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
-    }
-    public function provide_POST_subscriptions_HTTP_CREATED()
-    {
-        return array(
-            array(array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'1')),
-            array(array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'1.1')),
-        );
+
+        $subscription = json_decode($response->getcontent(), true);
+
+        // Una vez añadido se comprueba y se borra
+        $client = static::createClient();
+        $client->request('GET', '/api/v1/partners/1/subscriptions');
+        $response = $client->getResponse();        
+        $content = json_decode($response->getcontent(), true);
+        $this->assertEquals('5', count($content));
     }
 
     /**
@@ -115,6 +134,12 @@ class SubscriotionControllerTest extends WebTestCase
 
 
 
+    // ##################################################################################
+    // #################################   PATCH   ######################################
+    // ##################################################################################
+
+
+
     /**
      * @dataProvider provide_PATCH_subscriptions_HTTP_CREATED
      */
@@ -135,6 +160,11 @@ class SubscriotionControllerTest extends WebTestCase
             array(array('outDate'=>'2020-08-02')),
             array(array('info'=>'nueva info')),
             array(array('price'=>'1.2')),
+
+            array(array('inDate'=>'2015-01-01')), // Para restaurar
+            array(array('outDate'=>'2016-01-01')),
+            array(array('info'=>'Suscripción 1')),
+            array(array('price'=>'1.11')),
         );
     }
 
@@ -166,15 +196,19 @@ class SubscriotionControllerTest extends WebTestCase
 
 
 
-    public function test_DELETE_subscriptions_HTTP_ACCEPTED($data = array())
+    // ##################################################################################
+    // ################################   DELETE   ######################################
+    // ##################################################################################
+
+
+    public function test_DELETE_subscriptions_HTTP_ACCEPTED()
     {
         $client = $this->client;
-        $client->request('DELETE', '/api/v1/partners/1/subscriptions/1', $data);
+        $client->request('DELETE', '/api/v1/partners/1/subscriptions/1');
         $response = $client->getResponse();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertEquals(Response::HTTP_ACCEPTED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-
 }
