@@ -170,6 +170,39 @@ class SubscriptionController extends Controller
         return View::create($subscription, Response::HTTP_CREATED);  
     }
 
+    /**
+     * @Route("/partners/{id_partner}/subscriptions/{id_subscription}", methods={"DELETE"})
+     * @param string $id_partner
+     * @param string $id_subscription
+     */    
+    public function deletePartnersId($id_partner = null, $id_subscription = null): View
+    {
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository(Partner::class);
 
-    // Falta delete subscriptions
+        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
+        if($partner === null){
+            $error = [
+                'code'=>Response::HTTP_BAD_REQUEST,
+                'message'=>'Not found',
+                'description'=>'The partner not exist'
+            ];
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        $subscription = $em->getRepository(Subscription::class)->findOneBy(array('partner'=>$partner->getId(), 'id'=>$id_subscription));
+        if($subscription === null){
+            $error = [
+                'code'=>Response::HTTP_BAD_REQUEST,
+                'message'=>'Not found',
+                'description'=>'The subscription not exist'
+            ];
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        $em->remove($partner);
+        //$em->flush();
+        
+        return View::create(null, Response::HTTP_ACCEPTED);  
+    }
 }

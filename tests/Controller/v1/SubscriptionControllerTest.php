@@ -166,6 +166,15 @@ class SubscriotionControllerTest extends WebTestCase
 
 
 
+    public function test_DELETE_subscriptions_HTTP_ACCEPTED($data = array())
+    {
+        $client = $this->client;
+        $client->request('DELETE', '/api/v1/partners/1/subscriptions/1', $data);
+        $response = $client->getResponse();
 
-    // Faltan tests para delete
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_ACCEPTED, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+
 }
