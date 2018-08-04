@@ -13,70 +13,96 @@ class PartnerControllerTest extends WebTestCase
 	{
         $this->client = static::createClient();
     }
-  
 
 
-    /**
-     * @dataProvider provide_test_GET_partners_HTTP_OK
-     */
-    public function test_GET_partners_HTTP_OK($url)
+    
+    // ##################################################################################
+    // ###################################   GET   ######################################
+    // ##################################################################################
+
+
+
+    public function test_GET_partners_HTTP_OK()
     {
         $client = $this->client;
-        $client->request('GET', $url);
+        $client->request('GET', '/api/v1/partners');
         $response = $client->getResponse();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
-    }
-    public function provide_test_GET_partners_HTTP_OK()
-    {
-        return array(
-            array('/api/v1/partners'),
-            array('/api/v1/partners/1')
-        );
+        
+        $content = json_decode($response->getcontent(), true);
+        $this->assertEquals('4', count($content));
     }
 
-    /**
-     * @dataProvider provide_test_GET_partners_HTTP_BAD_REQUEST
-     */
-    public function test_GET_partners_HTTP_BAD_REQUEST($url)
+    public function test_GET_partners_id_HTTP_OK()
     {
         $client = $this->client;
-        $client->request('GET', $url);
+        $client->request('GET', '/api/v1/partners/1');
+        $response = $client->getResponse();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+        
+        $content = json_decode($response->getcontent(), true);
+        $this->assertEquals('1', $content['id']);
+    }
+
+    public function test_GET_partners_id_HTTP_BAD_REQUEST()
+    {
+        $client = $this->client;
+        $client->request('GET', '/api/v1/partners/0');
         $response = $client->getResponse();
 
         $this->assertFalse($response->isSuccessful());
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
-    }
-    public function provide_test_GET_partners_HTTP_BAD_REQUEST()
-    {
-        return array(
-            array('/api/v1/partners/0')
-        );
+
+        $content = json_decode($response->getcontent(), true);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $content['code']);
     }
 
 
 
-    /**
-     * @dataProvider provide_POST_partners_HTTP_CREATED
-     */
-    public function test_POST_partners_HTTP_CREATED($data)
+    // ##################################################################################
+    // ##################################   POST   ######################################
+    // ##################################################################################
+
+
+
+    public function test_POST_partners_HTTP_CREATED()
     {
         $client = $this->client;
-        $client->request('POST', '/api/v1/partners', $data);
+        $post = array('name'=>'name','surname'=>'surname','email'=>'email@email.com','active'=>'1','role'=>'1');
+        $client->request('POST', '/api/v1/partners', $post);
         $response = $client->getResponse();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
-    }
-    public function provide_POST_partners_HTTP_CREATED()
-    {
-        return array(
-            array(array('name'=>'name','surname'=>'surname','email'=>'email@email.com','active'=>'1','role'=>'1')),
-        );
+
+        $partner = json_decode($response->getcontent(), true);
+
+        // Una vez añadido se comprueba y se borra
+        $client = static::createClient();
+        $client->request('GET', '/api/v1/partners');
+        $response = $client->getResponse();        
+        $content = json_decode($response->getcontent(), true);
+        $this->assertEquals('5', count($content));
+
+        $client = static::createClient();
+        $client->request('GET', '/api/v1/partners/'.$partner['id']);
+        $response = $client->getResponse();        
+        $content = json_decode($response->getcontent(), true);
+        $this->assertEquals($partner['id'], $content['id']);
+
+        $client = static::createClient();
+        $client->request('DELETE', '/api/v1/partners/'.$partner['id']);
+        $response = $client->getResponse();        
+        $content = json_decode($response->getcontent(), true);
+        $this->assertEquals(Response::HTTP_ACCEPTED, $response->getStatusCode());
     }
 
     /**
@@ -112,7 +138,13 @@ class PartnerControllerTest extends WebTestCase
     }
 
 
-    
+
+    // ##################################################################################
+    // #################################   PATCH   ######################################
+    // ##################################################################################
+
+
+
     /**
      * @dataProvider provide_PATCH_partners_HTTP_CREATED
      */
@@ -135,6 +167,13 @@ class PartnerControllerTest extends WebTestCase
             array(array('password'=>'nuevo password')),
             array(array('active'=>'0')),
             array(array('role'=>'0')),
+
+            array(array('name'=>'Name 1')), // Para restaurar como estaba
+            array(array('surname'=>'Surname 1')),
+            array(array('email'=>'email1@email.com')),
+            array(array('password'=>'password')),
+            array(array('active'=>'1')),
+            array(array('role'=>'1')),
         );
     }
 
@@ -166,10 +205,16 @@ class PartnerControllerTest extends WebTestCase
 
 
 
-    public function test_DELETE_partners_HTTP_PARTIAL_CONTENT($data = array())
+    // ##################################################################################
+    // ################################   DELETE   ######################################
+    // ##################################################################################
+
+
+
+    public function test_DELETE_partners_HTTP_PARTIAL_CONTENT()
     {
         $client = $this->client;
-        $client->request('DELETE', '/api/v1/partners/1', $data);
+        $client->request('DELETE', '/api/v1/partners/1');
         $response = $client->getResponse();
 
         $this->assertTrue($response->isSuccessful());
@@ -177,15 +222,17 @@ class PartnerControllerTest extends WebTestCase
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
 
-    public function test_DELETE_partners_HTTP_ACCEPTED($data = array())
+    /*
+    public function test_DELETE_partners_HTTP_ACCEPTED()
     {
         $client = $this->client;
-        $client->request('DELETE', '/api/v1/partners/3', $data);
+        $client->request('DELETE', '/api/v1/partners/3');
         $response = $client->getResponse();
 
         $this->assertTrue($response->isSuccessful());
         $this->assertEquals(Response::HTTP_ACCEPTED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    
+    */
+
 }
