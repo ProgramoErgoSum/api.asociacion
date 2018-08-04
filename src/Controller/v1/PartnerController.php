@@ -3,7 +3,6 @@
 namespace App\Controller\v1;
 
 use App\Entity\Partner;
-use App\Form\PartnerType;
 use App\Entity\Subscription;
 
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +32,27 @@ class PartnerController extends Controller
     }
 
     /**
+     * @Route("/partners/{id_partner}", methods={"GET"})
+     * @param string $id_partner
+     */    
+    public function getPartnersId($id_partner = null): View
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
+        if($partner === null){
+            $error = [
+                'code'=>Response::HTTP_BAD_REQUEST,
+                'message'=>'Not found',
+                'description'=>'The partner not exist'
+            ];
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+                
+        return View::create($partner, Response::HTTP_OK);   
+    }
+
+    /**
      * @Route("/partners", methods={"POST"})
      * @param Request $request
      */    
@@ -41,15 +61,19 @@ class PartnerController extends Controller
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository(Partner::class);
 
-        if(!$repo->formValidate($request->request->all())){
-            $error = [
-                'code'=>Response::HTTP_BAD_REQUEST,
-                'message'=>'Values are invalid',
-                'description'=>'The next fields are required {name[str], surname[str], email[email], active[int], role[int]}'
-            ];
+        // Todos los campos requeridos
+        $error = $repo->formPost($request->request->all());
+        if(is_array($error)){
             return View::create($error, Response::HTTP_BAD_REQUEST); 
         }
 
+        // Todos los campos válidos
+        $error = $repo->formValidate($request->request->all());
+        if(is_array($error)){
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        // Email no existe
         $exist_email = $em->getRepository('App:Partner')->findOneBy(array('email'=>$request->get('email')));
         if($exist_email !== null){
             $error = [
@@ -73,22 +97,80 @@ class PartnerController extends Controller
         $partner->setCode($code);
         $partner->setSalt(md5(uniqid()));
         $partner->setPassword(password_hash($partner->getCode(), PASSWORD_BCRYPT, array('cost' => 4)));
-
+        $partner->setCDate(new \DateTime('now'));
+        $partner->setMDate(new \DateTime('now'));
         $em->persist($partner);
-        //$em->flush();
+        $em->flush();
+        
+        $partner = $em->getRepository(Partner::class)->findOneBy(array('code'=>$partner->getCode()));
+        return View::create($partner, Response::HTTP_CREATED);  
+    }
+    
+    /**
+     * @Route("/partners/{id_partner}", methods={"PATCH"})
+     * @param Request $request
+     * @param string $id_partner
+     */    
+    public function patchPartnersId(Request $request, $id_partner = null): View
+    {
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository(Partner::class);
+
+        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
+        if($partner === null){
+            $error = [
+                'code'=>Response::HTTP_BAD_REQUEST,
+                'message'=>'Not found',
+                'description'=>'The partner not exist'
+            ];
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        // Algunos campos requeridos
+        $error = $repo->formPatch($request->request->all());
+        if(is_array($error)){
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        // Todos los campos válidos
+        $error = $repo->formValidate($request->request->all());
+        if(is_array($error)){
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        if($request->get('name'))
+            $partner->setName($request->get('name'));
+
+        if($request->get('surname'))
+            $partner->setSurname($request->get('surname'));
+
+        if($request->get('email'))
+            $partner->setEmail($request->get('email'));
+
+        if($request->get('active'))
+            $partner->setActive($request->get('active'));
+
+        if($request->get('role'))
+            $partner->setRole($request->get('role'));
+        
+        if($request->get('password'))
+            $partner->setPassword(password_hash($partner->getCode(), PASSWORD_BCRYPT, array('cost' => 4)));
+
+        $partner->setMDate(new \DateTime('now'));
+        $em->persist($partner);
+        $em->flush();
         
         return View::create($partner, Response::HTTP_CREATED);  
     }
 
-
-
     /**
-     * @Route("/partners/{id_partner}", methods={"GET"})
+     * @Route("/partners/{id_partner}", methods={"DELETE"})
      * @param string $id_partner
      */    
-    public function getPartnersId($id_partner = null): View
+    public function deletePartnersId($id_partner = null): View
     {
         $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository(Partner::class);
 
         $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
         if($partner === null){
@@ -99,64 +181,22 @@ class PartnerController extends Controller
             ];
             return View::create($error, Response::HTTP_BAD_REQUEST); 
         }
-                
-        return View::create($partner, Response::HTTP_OK);   
-    }
 
-
-
-    /**
-     * @Route("/partners/{id_partner}/subscriptions", methods={"GET"})
-     * @param string $id_partner
-     */    
-    public function getPartnersIdSubscriptions($id_partner = null): View
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
-        if($partner === null){
+        // Comprobar si tiene subscripciones
+        $subscriptions = $em->getRepository(Subscription::class)->findOneBy(array('partner'=>$partner->getId()));
+        if($subscriptions){
             $error = [
-                'code'=>Response::HTTP_BAD_REQUEST,
-                'message'=>'Not found',
-                'description'=>'The partner not exist'
+                'code'=>Response::HTTP_PARTIAL_CONTENT,
+                'message'=>'Partner with subscriptions',
+                'description'=>'This partner has subscriptions'
             ];
-            return View::create($error, Response::HTTP_BAD_REQUEST); 
-        }
-       
-        return View::create($partner->getSubscriptions(), Response::HTTP_OK);   
-    }
-
-
-
-    /**
-     * @Route("/partners/{id_partner}/subscriptions/{id_subscription}", methods={"GET"})
-     * @param string $id_partner
-     * @param string $id_subscription
-     */    
-    public function getPartnersIdSubscriptionsId($id_partner = null, $id_subscription = null): View
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
-        if($partner === null){
-            $error = [
-                'code'=>Response::HTTP_BAD_REQUEST,
-                'message'=>'Not found',
-                'description'=>'The partner not exist'
-            ];
-            return View::create($error, Response::HTTP_BAD_REQUEST); 
-        }
-            
-        $subscription = $em->getRepository(Subscription::class)->findOneBy(array('partner'=>$partner->getId(), 'id'=>$id_subscription));
-        if($subscription === null){
-            $error = [
-                'code'=>Response::HTTP_BAD_REQUEST,
-                'message'=>'Not found',
-                'description'=>'The subscription not exist'
-            ];
-            return View::create($error, Response::HTTP_BAD_REQUEST); 
+            return View::create($error, Response::HTTP_PARTIAL_CONTENT); 
         }
 
-        return View::create($subscription, Response::HTTP_OK);   
+        $em->remove($partner);
+        $em->flush();
+        
+        return View::create(null, Response::HTTP_ACCEPTED);  
     }
+
 }
