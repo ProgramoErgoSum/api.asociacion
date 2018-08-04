@@ -166,6 +166,36 @@ class PartnerControllerTest extends WebTestCase
 
 
 
+    public function test_DELETE_partners_HTTP_NOT_MODIFIED($data = array())
+    {
+        $client = $this->client;
+        $client->request('DELETE', '/api/v1/partners/1', $data);
+        $response = $client->getResponse();
 
-    // Faltan tests para delete
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+
+    public function test_DELETE_partners_HTTP_NO_CONTENT($data = array())
+    {
+        $client = $this->client;
+        $client->request('DELETE', '/api/v1/partners/3', $data);
+        $response = $client->getResponse();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_ACCEPTED, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+
+    public function test_DELETE_partners_HTTP_BAD_REQUEST($data = array())
+    {
+        $client = $this->client;
+        $client->request('PATCH', '/api/v1/partners/0', $data);
+        $response = $client->getResponse();
+
+        $this->assertFalse($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
 }

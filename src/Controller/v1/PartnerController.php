@@ -164,6 +164,40 @@ class PartnerController extends Controller
         return View::create($partner, Response::HTTP_CREATED);  
     }
 
-    // Falta delete
+    /**
+     * @Route("/partners/{id_partner}", methods={"DELETE"})
+     * @param string $id_partner
+     */    
+    public function deletePartnersId($id_partner = null): View
+    {
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository(Partner::class);
+
+        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
+        if($partner === null){
+            $error = [
+                'code'=>Response::HTTP_BAD_REQUEST,
+                'message'=>'Not found',
+                'description'=>'The partner not exist'
+            ];
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        // Comprobar si tiene subscripciones
+        $subscriptions = $em->getRepository(Subscription::class)->findOneBy(array('partner'=>$partner->getId()));
+        if($subscriptions){
+            $error = [
+                'code'=>Response::HTTP_PARTIAL_CONTENT,
+                'message'=>'Partner with subscriptions',
+                'description'=>'This partner has subscriptions'
+            ];
+            return View::create($error, Response::HTTP_PARTIAL_CONTENT); 
+        }
+
+        $em->remove($partner);
+        //$em->flush();
+        
+        return View::create(null, Response::HTTP_ACCEPTED);  
+    }
 
 }
