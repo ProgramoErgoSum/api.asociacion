@@ -86,8 +86,6 @@ class PartnerControllerTest extends WebTestCase
         );
     }
 
-
-
     /**
      * @dataProvider provide_post_partners_HTTP_BAD_REQUEST
      */
@@ -119,6 +117,59 @@ class PartnerControllerTest extends WebTestCase
             array(array('name'=>'name','surname'=>'surname','email'=>'email1@email.com','active'=>'1','role'=>'1')), // Notar que el email ya existe
         );
     }
+
+    /**
+     * @dataProvider provide_patch_partners_HTTP_CREATED
+     */
+    public function test_patch_partners_HTTP_CREATED($data)
+    {
+        $client = $this->client;
+        $client->request('PATCH', '/api/v1/partners/1', $data);
+        $response = $client->getResponse();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+    public function provide_patch_partners_HTTP_CREATED()
+    {
+        return array(
+            array(array('name'=>'nuevo nombre')),
+            array(array('surname'=>'nuevo surname')),
+            array(array('email'=>'nuevo@email.com')),
+            array(array('password'=>'nuevo password')),
+            array(array('active'=>'0')),
+            array(array('role'=>'0')),
+        );
+    }
+
+    /**
+     * @dataProvider provide_patch_partners_HTTP_BAD_REQUEST
+     */
+    public function test_patch_partners_HTTP_BAD_REQUEST($data)
+    {
+        $client = $this->client;
+        $client->request('PATCH', '/api/v1/partners/1', $data);
+        $response = $client->getResponse();
+
+        $this->assertFalse($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+    public function provide_patch_partners_HTTP_BAD_REQUEST()
+    {
+        return array(
+            array(array()),
+            array(array('name'=>'')),
+            array(array('surname'=>'')),
+            array(array('email'=>'email no válido')),
+            array(array('password'=>'')),
+            array(array('active'=>'a')),
+            array(array('role'=>'a')),
+        );
+    }
+
+    
 
     
 
