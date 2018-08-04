@@ -3,9 +3,7 @@
 namespace App\Tests\Controller\v1;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpFoundation\Response;
-
-//https://api.symfony.com/4.1/Symfony/Component/HttpFoundation/Response.html
+use Symfony\Component\HttpFoundation\Response; //https://api.symfony.com/4.1/Symfony/Component/HttpFoundation/Response.html
 
 class PartnerControllerTest extends WebTestCase
 {
@@ -15,11 +13,13 @@ class PartnerControllerTest extends WebTestCase
 	{
         $this->client = static::createClient();
     }
-    
+  
+
+
     /**
-     * @dataProvider provide_urls_HTTP_OK
+     * @dataProvider provide_test_GET_partners_HTTP_OK
      */
-    public function test_url_HTTP_OK($url)
+    public function test_GET_partners_HTTP_OK($url)
     {
         $client = $this->client;
         $client->request('GET', $url);
@@ -29,20 +29,18 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    public function provide_urls_HTTP_OK()
+    public function provide_test_GET_partners_HTTP_OK()
     {
         return array(
             array('/api/v1/partners'),
-            array('/api/v1/partners/1'),
-            array('/api/v1/partners/1/subscriptions'),
-            array('/api/v1/partners/1/subscriptions/1'),
+            array('/api/v1/partners/1')
         );
     }
 
     /**
-     * @dataProvider provide_urls_HTTP_BAD_REQUEST
+     * @dataProvider provide_test_GET_partners_HTTP_BAD_REQUEST
      */
-    public function test_url_is_HTTP_BAD_REQUEST($url)
+    public function test_GET_partners_HTTP_BAD_REQUEST($url)
     {
         $client = $this->client;
         $client->request('GET', $url);
@@ -52,21 +50,19 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    public function provide_urls_HTTP_BAD_REQUEST()
+    public function provide_test_GET_partners_HTTP_BAD_REQUEST()
     {
         return array(
-            array('/api/v1/partners/0'),
-            array('/api/v1/partners/0/subscriptions'),
-            array('/api/v1/partners/0/subscriptions/1'),
-            array('/api/v1/partners/1/subscriptions/0'),
+            array('/api/v1/partners/0')
         );
     }
 
 
+
     /**
-     * @dataProvider provide_data_HTTP_CREATED
+     * @dataProvider provide_POST_partners_HTTP_CREATED
      */
-    public function test_post_partners_HTTP_CREATED($data)
+    public function test_POST_partners_HTTP_CREATED($data)
     {
         $client = $this->client;
         $client->request('POST', '/api/v1/partners', $data);
@@ -76,7 +72,7 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    public function provide_data_HTTP_CREATED()
+    public function provide_POST_partners_HTTP_CREATED()
     {
         return array(
             array(array('name'=>'name','surname'=>'surname','email'=>'email@email.com','active'=>'1','role'=>'1')),
@@ -84,9 +80,9 @@ class PartnerControllerTest extends WebTestCase
     }
 
     /**
-     * @dataProvider provide_data_HTTP_BAD_REQUEST
+     * @dataProvider provide_POST_partners_HTTP_BAD_REQUEST
      */
-    public function test_post_partners_HTTP_BAD_REQUEST($data)
+    public function test_POST_partners_HTTP_BAD_REQUEST($data)
     {
         $client = $this->client;
         $client->request('POST', '/api/v1/partners', $data);
@@ -96,7 +92,7 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    public function provide_data_HTTP_BAD_REQUEST()
+    public function provide_POST_partners_HTTP_BAD_REQUEST()
     {
         return array(
             array(array()),
@@ -106,10 +102,90 @@ class PartnerControllerTest extends WebTestCase
             array(array('name'=>'name','surname'=>'surname','email'=>'email'              ,'role'=>'1')),
             array(array('name'=>'name','surname'=>'surname','email'=>'email','active'=>'1'            )),
             
+            array(array('name'=>'','surname'=>'surname','email'=>'email','active'=>'1','role'=>'1')), // Notar name inválido
+            array(array('name'=>'name','surname'=>'','email'=>'email','active'=>'1','role'=>'1')), // Notar surname inválido
             array(array('name'=>'name','surname'=>'surname','email'=>'email','active'=>'1','role'=>'1')), // Notar que el email no es válido (@.)
             array(array('name'=>'name','surname'=>'surname','email'=>'e@e.e','active'=>'a','role'=>'1')), // Notar que active no es válido
             array(array('name'=>'name','surname'=>'surname','email'=>'e@e.e','active'=>'1','role'=>'a')), // Notar que role no es válido
             array(array('name'=>'name','surname'=>'surname','email'=>'email1@email.com','active'=>'1','role'=>'1')), // Notar que el email ya existe
         );
     }
+
+
+    
+    /**
+     * @dataProvider provide_PATCH_partners_HTTP_CREATED
+     */
+    public function test_PATCH_partners_HTTP_CREATED($data)
+    {
+        $client = $this->client;
+        $client->request('PATCH', '/api/v1/partners/1', $data);
+        $response = $client->getResponse();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+    public function provide_PATCH_partners_HTTP_CREATED()
+    {
+        return array(
+            array(array('name'=>'nuevo nombre')),
+            array(array('surname'=>'nuevo surname')),
+            array(array('email'=>'nuevo@email.com')),
+            array(array('password'=>'nuevo password')),
+            array(array('active'=>'0')),
+            array(array('role'=>'0')),
+        );
+    }
+
+    /**
+     * @dataProvider provide_PATCH_partners_HTTP_BAD_REQUEST
+     */
+    public function test_PATCH_partners_HTTP_BAD_REQUEST($data)
+    {
+        $client = $this->client;
+        $client->request('PATCH', '/api/v1/partners/1', $data);
+        $response = $client->getResponse();
+
+        $this->assertFalse($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+    public function provide_PATCH_partners_HTTP_BAD_REQUEST()
+    {
+        return array(
+            array(array()),
+            array(array('name'=>'')),
+            array(array('surname'=>'')),
+            array(array('email'=>'email no válido')),
+            array(array('password'=>'')),
+            array(array('active'=>'a')),
+            array(array('role'=>'a')),
+        );
+    }
+
+
+
+    public function test_DELETE_partners_HTTP_PARTIAL_CONTENT($data = array())
+    {
+        $client = $this->client;
+        $client->request('DELETE', '/api/v1/partners/1', $data);
+        $response = $client->getResponse();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+
+    public function test_DELETE_partners_HTTP_ACCEPTED($data = array())
+    {
+        $client = $this->client;
+        $client->request('DELETE', '/api/v1/partners/3', $data);
+        $response = $client->getResponse();
+
+        $this->assertTrue($response->isSuccessful());
+        $this->assertEquals(Response::HTTP_ACCEPTED, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+    }
+    
 }
