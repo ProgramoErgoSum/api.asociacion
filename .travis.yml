@@ -14,8 +14,12 @@ cache:
 env:
   global:
     - APP_ENV: test
-    - DATABASE_URL: 'mysql://root:@127.0.0.1:3306/test'
+    - DATABASE_URL: mysql://root:@127.0.0.1:3306/test
     - SYMFONY_DEPRECATIONS_HELPER: disabled
+    - JWT_SECRET_KEY: /config/jwt/private.pem.test
+    - JWT_PUBLIC_KEY: /config/jwt/public.pem.test
+    - JWT_PASSPHRASE: s$cretf0rt3st
+    - JWT_TOKENTTL: 3600
 
 services:
   - mysql
