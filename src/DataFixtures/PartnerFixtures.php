@@ -42,25 +42,25 @@ class PartnerFixtures extends Fixture
             [
                 'code' => 'AAAAAA', 'name' => 'Name 1', 'surname' => 'Surname 1','email' => 'email1@email.com',
                 'password' => password_hash('pa$$w0rd', PASSWORD_BCRYPT, array('cost' => 4)),'salt' => md5(uniqid()),
-                'active' => 1, 'role' => 1, 
+                'active' => 1, 'role' => Partner::ROLE_PREMIUM, 
                 'cdate' => new \DateTime('2015-01-01'), 'mdate' => new \DateTime('2015-01-01')
             ],
             [
                 'code' => 'BBBBBB', 'name' => 'Name 2', 'surname' => 'Surname 2','email' => 'email2@email.com',
                 'password' => password_hash('pa$$w0rd', PASSWORD_BCRYPT, array('cost' => 4)),'salt' => md5(uniqid()),
-                'active' => 1, 'role' => 1, 
+                'active' => 1, 'role' => Partner::ROLE_PREMIUM, 
                 'cdate' => new \DateTime('2015-01-01'), 'mdate' => new \DateTime('2015-01-01')
             ],
             [
                 'code' => 'CCCCCC', 'name' => 'Name 3', 'surname' => 'Surname 3','email' => 'email3@email.com',
                 'password' => password_hash('pa$$w0rd', PASSWORD_BCRYPT, array('cost' => 4)),'salt' => md5(uniqid()),
-                'active' => 1, 'role' => 0, 
+                'active' => 1, 'role' => Partner::ROLE_USER, 
                 'cdate' => new \DateTime('2015-01-01'), 'mdate' => new \DateTime('2015-01-01')
             ],
             [
                 'code' => 'DDDDDD', 'name' => 'Name 4', 'surname' => 'Surname 4','email' => 'email4@email.com',
                 'password' => password_hash('pa$$w0rd', PASSWORD_BCRYPT, array('cost' => 4)),'salt' => md5(uniqid()),
-                'active' => 0, 'role' => 1, 
+                'active' => 0, 'role' => Partner::ROLE_PREMIUM, 
                 'cdate' => new \DateTime('2015-01-01'), 'mdate' => new \DateTime('2015-01-01')
             ],
         ];
