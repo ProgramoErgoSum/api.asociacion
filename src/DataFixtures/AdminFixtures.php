@@ -27,8 +27,7 @@ class AdminFixtures extends Fixture
     private function getData()
     {
         return [
-            //['username' => 'admin', 'password' => password_hash('pa$$w0rd', PASSWORD_BCRYPT, ['cost' => 4]),'salt' => md5(uniqid()),'role' => Admin::ROLE_ADMIN],
-            ['username' => 'admin', 'password' => password_hash('pa$$w0rd', PASSWORD_BCRYPT, ['cost' => 4]),'salt' => md5(uniqid()),'role' => 999],
+            ['username' => 'admin', 'password' => password_hash('pa$$w0rd', PASSWORD_BCRYPT, ['cost' => 4]),'salt' => md5(uniqid()),'role' => Admin::ROLE_ADMIN]        
         ];
     }
 }
