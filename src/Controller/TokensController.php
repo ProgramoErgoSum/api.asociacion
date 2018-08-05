@@ -20,7 +20,7 @@ class TokensController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $admin = $em->getRepository(Admin::class)->findOneBy(array('username'=>$request->get('_username')));
+        $admin = $em->getRepository(Admin::class)->findOneBy(['username'=>$request->get('_username')]);
         if($admin === null || !$this->get('security.password_encoder')->isPasswordValid($admin, $request->get('_password'))){
             $error = [
                 'code'=>Response::HTTP_BAD_REQUEST,
