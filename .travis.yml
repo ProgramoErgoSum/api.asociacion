@@ -30,6 +30,9 @@ before_install:
   - composer self-update
   - cp .env.dist .env
   - cp phpunit.xml.dist phpunit.xml
+  - mkdir -p config/jwt
+  - openssl genrsa -passout pass:s$cretf0rt3st -out config/jwt/private.pem.test -aes256 4096
+  - openssl rsa -pubout -in config/jwt/private.pem.test -passin pass:s$cretf0rt3st -out config/jwt/public.pem.test
 
 install:
   - composer install
