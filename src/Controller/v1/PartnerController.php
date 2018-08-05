@@ -39,7 +39,7 @@ class PartnerController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
+        $partner = $em->getRepository(Partner::class)->findOneBy(['id'=>$id_partner]);
         if($partner === null){
             $error = [
                 'code'=>Response::HTTP_BAD_REQUEST,
@@ -74,7 +74,7 @@ class PartnerController extends Controller
         }
 
         // Email no existe
-        $exist_email = $em->getRepository('App:Partner')->findOneBy(array('email'=>$request->get('email')));
+        $exist_email = $em->getRepository('App:Partner')->findOneBy(['email'=>$request->get('email')]);
         if($exist_email !== null){
             $error = [
                 'code'=>Response::HTTP_BAD_REQUEST,
@@ -92,18 +92,18 @@ class PartnerController extends Controller
         $partner->setRole($request->get('role'));
         do {
             $code = substr(str_shuffle(str_repeat('BCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 6)), 0, 6);
-            $exist_code = $em->getRepository('App:Partner')->findOneBy(array('code'=>$code));
+            $exist_code = $em->getRepository('App:Partner')->findOneBy(['code'=>$code]);
         } while ($exist_code!=null);
         $partner->setCode($code);
         $partner->setSalt(md5(uniqid()));
-        $partner->setPassword(password_hash($partner->getCode(), PASSWORD_BCRYPT, array('cost' => 4)));
+        $partner->setPassword(password_hash($partner->getCode(), PASSWORD_BCRYPT, ['cost' => 4]));
         $partner->setCDate(new \DateTime('now'));
         $partner->setMDate(new \DateTime('now'));
         $em->persist($partner);
         $em->flush();
         
-        $partner = $em->getRepository(Partner::class)->findOneBy(array('code'=>$partner->getCode()));
-        return View::create($partner, Response::HTTP_CREATED);  
+        $partners = $em->getRepository(Partner::class)->findAll();
+        return View::create($partners, Response::HTTP_CREATED);  
     }
     
     /**
@@ -116,7 +116,7 @@ class PartnerController extends Controller
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository(Partner::class);
 
-        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
+        $partner = $em->getRepository(Partner::class)->findOneBy(['id'=>$id_partner]);
         if($partner === null){
             $error = [
                 'code'=>Response::HTTP_BAD_REQUEST,
@@ -138,23 +138,34 @@ class PartnerController extends Controller
             return View::create($error, Response::HTTP_BAD_REQUEST); 
         }
 
-        if($request->get('name'))
+        // Email no existe
+        $exist_email = $em->getRepository('App:Partner')->findOneBy(['email'=>$request->get('email')]);
+        if($exist_email !== null){
+            $error = [
+                'code'=>Response::HTTP_BAD_REQUEST,
+                'message'=>'Email already exist',
+                'description'=>'The email already exist en db'
+            ];
+            return View::create($error, Response::HTTP_BAD_REQUEST); 
+        }
+
+        if($request->get('name')!== null)
             $partner->setName($request->get('name'));
 
-        if($request->get('surname'))
+        if($request->get('surname')!== null)
             $partner->setSurname($request->get('surname'));
 
-        if($request->get('email'))
+        if($request->get('email')!== null)
             $partner->setEmail($request->get('email'));
 
-        if($request->get('active'))
+        if($request->get('active')!== null)
             $partner->setActive($request->get('active'));
 
-        if($request->get('role'))
+        if($request->get('role')!== null)
             $partner->setRole($request->get('role'));
         
-        if($request->get('password'))
-            $partner->setPassword(password_hash($partner->getCode(), PASSWORD_BCRYPT, array('cost' => 4)));
+        if($request->get('password')!== null)
+            $partner->setPassword(password_hash($partner->getCode(), PASSWORD_BCRYPT, ['cost' => 4]));
 
         $partner->setMDate(new \DateTime('now'));
         $em->persist($partner);
@@ -172,7 +183,7 @@ class PartnerController extends Controller
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository(Partner::class);
 
-        $partner = $em->getRepository(Partner::class)->findOneBy(array('id'=>$id_partner));
+        $partner = $em->getRepository(Partner::class)->findOneBy(['id'=>$id_partner]);
         if($partner === null){
             $error = [
                 'code'=>Response::HTTP_BAD_REQUEST,
@@ -183,7 +194,7 @@ class PartnerController extends Controller
         }
 
         // Comprobar si tiene subscripciones
-        $subscriptions = $em->getRepository(Subscription::class)->findOneBy(array('partner'=>$partner->getId()));
+        $subscriptions = $em->getRepository(Subscription::class)->findOneBy(['partner'=>$partner->getId()]);
         if($subscriptions){
             $error = [
                 'code'=>Response::HTTP_PARTIAL_CONTENT,

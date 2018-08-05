@@ -14,11 +14,12 @@ class TokensControllerTest extends WebTestCase
         $this->client = static::createClient();
     }
 
-
-    public function test_POST_tokens_HTTP_OK()
+    /**
+     * @dataProvider provide_POST_tokens_HTTP_OK
+     */
+    public function test_POST_tokens_HTTP_OK($post = null)
     {
         $client = $this->client;
-        $post = array('_username'=>'admin','_password'=>'pa$$w0rd');
         $client->request('POST', '/tokens', $post);
         $response = $client->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -26,6 +27,12 @@ class TokensControllerTest extends WebTestCase
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
         $this->assertArrayHasKey('token', $content);
+    }
+    public function provide_POST_tokens_HTTP_OK()
+    {
+        return [
+            [['_username'=>'admin','_password'=>'pa$$w0rd']],
+        ];
     }
 
     /**
@@ -44,12 +51,12 @@ class TokensControllerTest extends WebTestCase
     }
     public function provide_POST_tokens_HTTP_BAD_REQUEST()
     {
-        return array(
-            array([]),
-            array(['_username'=>'BAD_USERNAME']),
-            array(['_password'=>'BAD_PASSWORD']),
-            array(['_username'=>'BAD_USERNAME', '_password'=>'BAD_PASSWORD']),
-        );
+        return [
+            [[]],
+            [['_username'=>'BAD_USERNAME']],
+            [['_password'=>'BAD_PASSWORD']],
+            [['_username'=>'BAD_USERNAME','_password'=>'BAD_PASSWORD']],
+        ];
     }
 
 }
