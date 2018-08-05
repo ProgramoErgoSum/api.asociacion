@@ -76,6 +76,7 @@ class PartnerControllerTest extends WebTestCase
     public function test_GET_partners_HTTP_OK()
     {
         $client = $this->createAuthenticatedClient();
+
         $client->request('GET', '/api/v1/partners');
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
@@ -88,6 +89,7 @@ class PartnerControllerTest extends WebTestCase
     public function test_GET_partners_id_HTTP_OK()
     {
         $client = $this->createAuthenticatedClient();
+
         $client->request('GET', '/api/v1/partners/1');
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
@@ -100,6 +102,7 @@ class PartnerControllerTest extends WebTestCase
     public function test_GET_partners_id_HTTP_BAD_REQUEST()
     {
         $client = $this->createAuthenticatedClient();
+        
         $client->request('GET', '/api/v1/partners/0');
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);

@@ -11,7 +11,29 @@ class SubscriotionControllerTest extends WebTestCase
 
     protected function setUp()
 	{
-        $this->client = static::createClient();
+        $this->client = $this->createClient(['environment' => 'test']);
+        $this->client->disableReboot();
+        $this->em = $this->client->getContainer()->get('doctrine.orm.entity_manager');
+        $this->em->beginTransaction();
+    }
+
+    protected function tearDown()
+    {
+        $this->em->rollback();
+    }
+
+    protected function createAuthenticatedClient()
+    {
+        $client = $this->client;
+        $post = ['_username'=>'admin','_password'=>'pa$$w0rd'];
+        $client->request('POST', '/tokens', $post);
+        $response = $client->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        $client = $this->client;
+        $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $content['token']));
+
+        return $client;
     }
     
 
@@ -43,65 +65,54 @@ class SubscriotionControllerTest extends WebTestCase
 
 
 
+// AUTHENTICATED
 
 
 
+    // GET
 
 
 
-
-
-
-
-
-
-    // ##################################################################################
-    // ###################################   GET   ######################################
-    // ##################################################################################
-
-
-/* 
     public function test_GET_subscriptions_HTTP_OK()
     {
-        $client = $this->client;
+        $client = $this->createAuthenticatedClient();
+
         $client->request('GET', '/api/v1/partners/1/subscriptions');
         $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
 
-        $this->assertTrue($response->isSuccessful());
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
-
-        $content = json_decode($response->getcontent(), true);
         $this->assertEquals('4', count($content));
     }
 
     public function test_GET_subscriptions_id_HTTP_OK()
     {
-        $client = $this->client;
+        $client = $this->createAuthenticatedClient();
+
         $client->request('GET', '/api/v1/partners/1/subscriptions/1');
         $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
 
-        $this->assertTrue($response->isSuccessful());
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
-
-        $content = json_decode($response->getcontent(), true);
         $this->assertEquals('1', $content['id']);
     }
 
     /**
      * @dataProvider provide_test_GET_subscriptions_HTTP_BAD_REQUEST
      */
-    /*
-    public function test_GET_subscriptions_HTTP_BAD_REQUEST($url)
+    public function test_GET_subscriptions_HTTP_BAD_REQUEST($url = null)
     {
-        $client = $this->client;
+        $client = $this->createAuthenticatedClient();
+
         $client->request('GET', $url);
         $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
 
-        $this->assertFalse($response->isSuccessful());
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $content['code']);
     }
     public function provide_test_GET_subscriptions_HTTP_BAD_REQUEST()
     {
@@ -114,145 +125,145 @@ class SubscriotionControllerTest extends WebTestCase
 
 
 
-    // ##################################################################################
-    // ##################################   POST   ######################################
-    // ##################################################################################
-    
-    
+    // POST
+
+
 
     public function test_POST_subscriptions_HTTP_CREATED()
     {
-        $client = $this->client;
-        $post = array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'1.1');
+        $client = $this->createAuthenticatedClient();
+
+        $post = array('inDate'=>'2019-01-01','outDate'=>'2020-01-01','info'=>'info','price'=>'1.1');
         $client->request('POST', '/api/v1/partners/1/subscriptions', $post);
         $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
 
-        $this->assertTrue($response->isSuccessful());
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
-
-        $subscription = json_decode($response->getcontent(), true);
-
-        // Una vez añadido se comprueba y se borra
-        $client = static::createClient();
-        $client->request('GET', '/api/v1/partners/1/subscriptions');
-        $response = $client->getResponse();        
-        $content = json_decode($response->getcontent(), true);
         $this->assertEquals('5', count($content));
     }
 
     /**
      * @dataProvider provide_POST_subscriptions_HTTP_BAD_REQUEST
      */
-    /*
     public function test_POST_subscriptions_HTTP_BAD_REQUEST($data)
     {
-        $client = $this->client;
+        $client = $this->createAuthenticatedClient();
+
         $client->request('POST', '/api/v1/partners/1/subscriptions', $data);
         $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
 
-        $this->assertFalse($response->isSuccessful());
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $content['code']);
     }
     public function provide_POST_subscriptions_HTTP_BAD_REQUEST()
     {
-        return array(
-            array(array()),
-            array(array(                 'outDate'=>'date','info'=>'info','price'=>'1')),
-            array(array('inDate'=>'date'                  ,'info'=>'info','price'=>'1')),
-            array(array('inDate'=>'date','outDate'=>'date'               ,'price'=>'1')),
-            array(array('inDate'=>'date','outDate'=>'date','info'=>'info'             )),
-            array(array('inDate'=>'date','outDate'=>'date','info'=>'info','price'=>'1')),
+        return [
+            [[]],
+            [[                 'outDate'=>'date','info'=>'info','price'=>'1']],
+            [['inDate'=>'date'                  ,'info'=>'info','price'=>'1']],
+            [['inDate'=>'date','outDate'=>'date'               ,'price'=>'1']],
+            [['inDate'=>'date','outDate'=>'date','info'=>'info'             ]],
+            [['inDate'=>'date','outDate'=>'date','info'=>'info','price'=>'1']],
             
-            array(array('inDate'=>'BAD','outDate'=>'2018-08-02','info'=>'info','price'=>'1')), // Notar fecha inválida
-            array(array('inDate'=>'02-08-2018','outDate'=>'2018-08-02','info'=>'info','price'=>'1')), // Notar fecha inválida
-            array(array('inDate'=>'2018-08-02 00:00:00','outDate'=>'2018-08-02','info'=>'info','price'=>'1')), // Notar fecha inválida
-            array(array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'','price'=>'1')), // Notar info inválido
-            array(array('inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'BAD')), // Notar precio inválido
-        );
+            [['inDate'=>'BAD','outDate'=>'2018-08-02','info'=>'info','price'=>'1']],                    // fecha
+            [['inDate'=>'02-08-2018','outDate'=>'2018-08-02','info'=>'info','price'=>'1']],             // fecha
+            [['inDate'=>'2018-08-02 00:00:00','outDate'=>'2018-08-02','info'=>'info','price'=>'1']],    // fecha
+            [['inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'','price'=>'1']],                 // info
+            [['inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'BAD']],           // precio
+        ];
     }
 
 
 
-    // ##################################################################################
-    // #################################   PATCH   ######################################
-    // ##################################################################################
+    // PATCH
 
 
 
     /**
      * @dataProvider provide_PATCH_subscriptions_HTTP_CREATED
      */
-    /*
-    public function test_PATCH_subscriptions_HTTP_CREATED($data)
+    public function test_PATCH_subscriptions_HTTP_CREATED($post = null)
     {
-        $client = $this->client;
-        $client->request('PATCH', '/api/v1/partners/1/subscriptions/1', $data);
-        $response = $client->getResponse();
+        $client = $this->createAuthenticatedClient();
 
-        $this->assertTrue($response->isSuccessful());
+        $client->request('PATCH', '/api/v1/partners/1/subscriptions/1', $post);
+        $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
+
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
+        $this->assertEquals($post[key($post)], $content[key($post)]);
     }
     public function provide_PATCH_subscriptions_HTTP_CREATED()
     {
-        return array(
-            array(array('inDate'=>'2019-08-02')),
-            array(array('outDate'=>'2020-08-02')),
-            array(array('info'=>'nueva info')),
-            array(array('price'=>'1.2')),
-
-            array(array('inDate'=>'2015-01-01')), // Para restaurar
-            array(array('outDate'=>'2016-01-01')),
-            array(array('info'=>'Suscripción 1')),
-            array(array('price'=>'1.11')),
-        );
+        return [
+            //[['inDate'=>'2015-12-31']],
+            //[['outDate'=>'2015-12-31']],
+            [['info'=>'nueva']],
+            [['price'=>'1.2']],
+        ];
     }
 
     /**
      * @dataProvider provide_PATCH_subscriptions_HTTP_BAD_REQUEST
      */
-    /*
-    public function test_PATCH_subscriptions_HTTP_BAD_REQUEST($data)
+    public function test_PATCH_subscriptions_HTTP_BAD_REQUEST($post = null)
     {
-        $client = $this->client;
-        $client->request('PATCH', '/api/v1/partners/1/subscriptions/1', $data);
-        $response = $client->getResponse();
+        $client = $this->createAuthenticatedClient();
 
-        $this->assertFalse($response->isSuccessful());
+        $client->request('PATCH', '/api/v1/partners/1/subscriptions/1', $post);
+        $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
+
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $content['code']);
     }
     public function provide_PATCH_subscriptions_HTTP_BAD_REQUEST()
     {
-        return array(
-            array(array()),
-            array(array('inDate'=>'')),
-            array(array('inDate'=>'BAD')),
-            array(array('outDate'=>'BAD')),
-            array(array('info'=>'')),
-            array(array('price'=>'a')),
-            array(array('price'=>'1,5')), // Notar la coma (,) debe ser punto
-        );
+        return [
+            [[]],
+            [['inDate'=>'']],
+            [['inDate'=>'BAD']],
+            [['outDate'=>'BAD']],
+            [['info'=>'']],
+            [['price'=>'a']],
+            [['price'=>'1,5']],
+        ];
     }
 
 
 
-    // ##################################################################################
-    // ################################   DELETE   ######################################
-    // ##################################################################################
+    // DELETE
+
 
 
     public function test_DELETE_subscriptions_HTTP_ACCEPTED()
     {
-        $client = $this->client;
+        $client = $this->createAuthenticatedClient();
+
         $client->request('DELETE', '/api/v1/partners/1/subscriptions/1');
         $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
 
-        $this->assertTrue($response->isSuccessful());
         $this->assertEquals(Response::HTTP_ACCEPTED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    */
+
+    public function test_DELETE_subscriptions_HTTP_BAD_REQUEST()
+    {
+        $client = $this->createAuthenticatedClient();
+
+        $client->request('DELETE', '/api/v1/partners/1/subscriptions/0');
+        $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $content['code']);
+    }
+    
 }

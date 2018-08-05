@@ -113,7 +113,7 @@ class SubscriptionController extends Controller
         $em->persist($subscription);
         $em->flush();
         
-        return View::create($subscription, Response::HTTP_CREATED);  
+        return View::create($partner->getSubscriptions(), Response::HTTP_CREATED);  
     }
 
     /**
@@ -159,16 +159,16 @@ class SubscriptionController extends Controller
             return View::create($error, Response::HTTP_BAD_REQUEST); 
         }
 
-        if($request->get('inDate'))
+        if($request->get('inDate')!==null)
             $subscription->setInDate(new \DateTime($request->get('inDate')));
 
-        if($request->get('outDate'))
+        if($request->get('outDate')!==null)
             $subscription->setOutDate(new \DateTime($request->get('outDate')));
 
-        if($request->get('info'))
+        if($request->get('info')!==null)
             $subscription->setInfo($request->get('info'));
 
-        if($request->get('price'))
+        if($request->get('price')!==null)
             $subscription->setPrice($request->get('price'));
 
         $em->persist($subscription);
