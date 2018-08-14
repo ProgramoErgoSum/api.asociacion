@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\v1;
 
 use App\Entity\Admin;
 
@@ -11,6 +11,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 use FOS\RestBundle\View\View;
 
+/**
+ * Tokens controller.
+ *
+ * @Route("/api/v1")
+ */
 class TokensController extends Controller
 {
     /**
