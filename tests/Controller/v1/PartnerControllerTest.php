@@ -26,7 +26,7 @@ class PartnerControllerTest extends WebTestCase
     {
         $client = $this->client;
         $post = ['_username'=>'admin','_password'=>'pa$$w0rd'];
-        $client->request('POST', '/tokens', $post);
+        $client->request('POST', '/api/v1/tokens', $post);
         $response = $client->getResponse();
         $content = json_decode($response->getContent(), true);
 
