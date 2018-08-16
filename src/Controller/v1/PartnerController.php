@@ -21,12 +21,16 @@ class PartnerController extends Controller
 {
     /**
      * @Route("/partners", methods={"GET"})
+     * @param Request $request
      */    
-    public function getPartners(): View
+    public function getPartners(Request $request): View
     {
+        $offset = $request->query->get('offset'); 
+        $limit = $request->query->get('limit');
+        
         $em = $this->getDoctrine()->getManager();
 
-        $partners = $em->getRepository(Partner::class)->findAll();
+        $partners = $em->getRepository(Partner::class)->findBy([], null, $limit, $offset);
                 
         return View::create($partners, Response::HTTP_OK);   
     }

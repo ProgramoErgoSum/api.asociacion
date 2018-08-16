@@ -86,6 +86,56 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals('4', count($content));
     }
 
+    /**
+     * @dataProvider provide_partners_limit_HTTP_OK
+     */
+    public function test_partners_limit_HTTP_OK($url = null, $items = null)
+    {
+        $client = $this->createAuthenticatedClient();
+
+        $client->request('GET', $url);
+        $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+        $this->assertEquals($items, count($content));
+    }
+    public function provide_partners_limit_HTTP_OK()
+    {
+        return [
+            ['/api/v1/partners?offset=0&limit=0', 0],
+            ['/api/v1/partners?offset=0&limit=1', 1],
+            ['/api/v1/partners?offset=0&limit=2', 2],
+            ['/api/v1/partners?offset=0&limit=3', 3],
+            ['/api/v1/partners?offset=0&limit=4', 4],
+
+            ['/api/v1/partners?offset=1&limit=0', 0],
+            ['/api/v1/partners?offset=1&limit=1', 1],
+            ['/api/v1/partners?offset=1&limit=2', 2],
+            ['/api/v1/partners?offset=1&limit=3', 3],
+            ['/api/v1/partners?offset=1&limit=4', 3],
+
+            ['/api/v1/partners?offset=2&limit=0', 0],
+            ['/api/v1/partners?offset=2&limit=1', 1],
+            ['/api/v1/partners?offset=2&limit=2', 2],
+            ['/api/v1/partners?offset=2&limit=3', 2],
+            ['/api/v1/partners?offset=2&limit=4', 2],
+
+            ['/api/v1/partners?offset=3&limit=0', 0],
+            ['/api/v1/partners?offset=3&limit=1', 1],
+            ['/api/v1/partners?offset=3&limit=2', 1],
+            ['/api/v1/partners?offset=3&limit=3', 1],
+            ['/api/v1/partners?offset=3&limit=4', 1],
+
+            ['/api/v1/partners?offset=4&limit=0', 0],
+            ['/api/v1/partners?offset=4&limit=1', 0],
+            ['/api/v1/partners?offset=4&limit=2', 0],
+            ['/api/v1/partners?offset=4&limit=3', 0],
+            ['/api/v1/partners?offset=4&limit=4', 0],
+        ];
+    }
+
     public function test_GET_partners_id_HTTP_OK()
     {
         $client = $this->createAuthenticatedClient();
