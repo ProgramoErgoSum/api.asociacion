@@ -87,6 +87,37 @@ class PartnerControllerTest extends WebTestCase
     }
 
     /**
+     * @dataProvider provide_partners_order_HTTP_OK
+     */
+    public function test_partners_order_HTTP_OK($url = null, $code = null)
+    {
+        $client = $this->createAuthenticatedClient();
+
+        $client->request('GET', $url);
+        $response = $client->getResponse();
+        $content = json_decode($response->getcontent(), true);
+
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+        $this->assertEquals($code, $content[0]['code']);
+    }
+    public function provide_partners_order_HTTP_OK()
+    {
+        return [
+            ['/api/v1/partners?sort_by=name&sort_dir=ASC', 'AAAAAA'],
+            ['/api/v1/partners?sort_by=name&sort_dir=DESC', 'DDDDDD'],
+            ['/api/v1/partners?sort_by=name&sort_dir=ASC&offset=0&limit=1', 'AAAAAA'],
+            ['/api/v1/partners?sort_by=name&sort_dir=ASC&offset=1&limit=1', 'BBBBBB'],
+            ['/api/v1/partners?sort_by=name&sort_dir=ASC&offset=2&limit=1', 'CCCCCC'],
+            ['/api/v1/partners?sort_by=name&sort_dir=ASC&offset=3&limit=1', 'DDDDDD'],
+            ['/api/v1/partners?sort_by=name&sort_dir=DESC&offset=0&limit=1', 'DDDDDD'],
+            ['/api/v1/partners?sort_by=name&sort_dir=DESC&offset=1&limit=1', 'CCCCCC'],
+            ['/api/v1/partners?sort_by=name&sort_dir=DESC&offset=2&limit=1', 'BBBBBB'],
+            ['/api/v1/partners?sort_by=name&sort_dir=DESC&offset=3&limit=1', 'AAAAAA'],
+        ];
+    }
+
+    /**
      * @dataProvider provide_partners_limit_HTTP_OK
      */
     public function test_partners_limit_HTTP_OK($url = null, $items = null)
