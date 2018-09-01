@@ -39,7 +39,7 @@ install:
   - docker-compose ps
 
 before_script:
-  - docker-compose run phpfpm composer update
+  - docker-compose run phpfpm composer update --no-interaction
   - docker-compose run phpfpm php bin/console doctrine:database:drop --force
   - docker-compose run phpfpm php bin/console doctrine:database:create
   - docker-compose run phpfpm php bin/console doctrine:schema:update --force
