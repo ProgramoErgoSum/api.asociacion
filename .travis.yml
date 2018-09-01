@@ -11,10 +11,6 @@ services:
 env:
   global:
     - PATH_APP: web/
-    - MYSQL_DATABASE: db_name
-    - MYSQL_ROOT_PASSWORD: db_root_pass
-    - MYSQL_USER: db_user
-    - MYSQL_PASSWORD: db_pass
     - APP_ENV: test
     - DATABASE_URL: mysql://db_user:db_pass@mysql:3306/db_name
     - SYMFONY_DEPRECATIONS_HELPER: disabled
@@ -26,6 +22,7 @@ env:
 cache:
   directories:
     - $HOME/.composer/cache
+
 
 before_install:
   - cp .env.dist .env
