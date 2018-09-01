@@ -32,11 +32,12 @@ before_install:
   - openssl rsa -pubout -in $JWT_SECRET_KEY -passin pass:$JWT_PASSPHRASE -out $JWT_PUBLIC_KEY
 
 install:
+  - docker-compose build
   - docker-compose up -d
   - docker-compose ps
 
 before_script:
-  - docker-compose exec phpfpm composer update --prefer-lowest --no-interaction
+  - docker-compose exec phpfpm composer update
   - docker-compose exec phpfpm php bin/console doctrine:database:drop --force
   - docker-compose exec phpfpm php bin/console doctrine:database:create
   - docker-compose exec phpfpm php bin/console doctrine:schema:update --force
