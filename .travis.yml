@@ -36,11 +36,11 @@ install:
   - docker-compose ps
 
 before_script:
-  - docker-compose exec phpfpm composer update --no-interaction
+  - docker-compose exec phpfpm composer update --prefer-lowest --no-interaction
   - docker-compose exec phpfpm php bin/console doctrine:database:drop --force
   - docker-compose exec phpfpm php bin/console doctrine:database:create
   - docker-compose exec phpfpm php bin/console doctrine:schema:update --force
   - docker-compose exec phpfpm php bin/console doctrine:fixtures:load --no-interaction
 
 script:
-  - docker-compose run phpfpm phpunit tests
+  - docker-compose exec phpfpm phpunit tests
