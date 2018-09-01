@@ -1,0 +1,30 @@
+security:
+
+    encoders:
+        App\Entity\Admin:
+            algorithm: bcrypt
+
+    providers:
+        provider_login:
+            entity:
+                class: App\Entity\Admin
+                property: username
+
+    firewalls:
+        firewall_login:
+            pattern:   ^/api/v1/tokens
+            stateless: true
+            anonymous: true
+        firewall_api:
+            pattern:   ^/api/v1
+            stateless: true
+            anonymous: false
+            guard:
+                provider: provider_login
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+
+    access_control:
+        - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY  }
+        - { path: ^/api/v1/tokens, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1, roles: IS_AUTHENTICATED_FULLY }
