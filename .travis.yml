@@ -19,7 +19,7 @@ env:
     - DATABASE_URL: mysql://dev:dev@mysql:3306/test
     - SYMFONY_DEPRECATIONS_HELPER: disabled
     - JWT_SECRET_KEY: $PATH_APP/config/jwt/private.pem
-    - JWT_PUBLIC_KEY: $PATH_APP/web/config/jwt/public.pem
+    - JWT_PUBLIC_KEY: $PATH_APP/config/jwt/public.pem
     - JWT_PASSPHRASE: s$cretf0rt3st
     - JWT_TOKENTTL: 3600
 
