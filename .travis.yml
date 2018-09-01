@@ -38,6 +38,8 @@ install:
 
 before_script:
   - docker-compose exec phpfpm composer self-update
+  - docker-compose exec phpfpm composer config extra.symfony.allow-contrib true
+  - docker-compose exec phpfpm composer update
   - docker-compose exec phpfpm php bin/console doctrine:database:drop --force
   - docker-compose exec phpfpm php bin/console doctrine:database:create
   - docker-compose exec phpfpm php bin/console doctrine:schema:update --force
