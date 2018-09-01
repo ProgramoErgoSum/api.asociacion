@@ -10,6 +10,7 @@ services:
 
 env:
   global:
+    - PATH_APP: web/
     - MYSQL_DATABASE: test
     - MYSQL_ROOT_PASSWORD: root
     - MYSQL_USER: dev
@@ -17,8 +18,8 @@ env:
     - APP_ENV: test
     - DATABASE_URL: mysql://dev:dev@mysql:3306/test
     - SYMFONY_DEPRECATIONS_HELPER: disabled
-    - JWT_SECRET_KEY: config/jwt/private.pem
-    - JWT_PUBLIC_KEY: config/jwt/public.pem
+    - JWT_SECRET_KEY: $PATH_APP/config/jwt/private.pem
+    - JWT_PUBLIC_KEY: $PATH_APP/web/config/jwt/public.pem
     - JWT_PASSPHRASE: s$cretf0rt3st
     - JWT_TOKENTTL: 3600
 
@@ -28,7 +29,8 @@ cache:
 
 before_install:
   - cp .env.dist .env
-  - cp phpunit.xml.dist phpunit.xml
+  - cp $PATH_APP/.env.dist $PATH_APP/.env
+  - cp $PATH_APP/phpunit.xml.dist $PATH_APP/phpunit.xml
   - openssl genrsa -passout pass:$JWT_PASSPHRASE -out $JWT_SECRET_KEY -aes256 4096
   - openssl rsa -pubout -in $JWT_SECRET_KEY -passin pass:$JWT_PASSPHRASE -out $JWT_PUBLIC_KEY
 
