@@ -1,6 +1,6 @@
 {
     "name": "ProgramoErgoSum/api.asociacion",
-    "description": "API REST Ful SF4",
+    "description": "Backend asociación",
     "type": "project",
     "license": "MIT",
     "require": {
