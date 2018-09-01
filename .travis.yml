@@ -23,7 +23,6 @@ cache:
   directories:
     - $HOME/.composer/cache
 
-
 before_install:
   - cp .env.dist .env
   - cp $PATH_APP/.env.dist $PATH_APP/.env
