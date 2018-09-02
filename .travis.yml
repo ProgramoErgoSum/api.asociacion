@@ -29,6 +29,9 @@ before_install:
   - cp $PATH_APP/phpunit.xml.dist $PATH_APP/phpunit.xml
   - openssl genrsa -passout pass:$JWT_PASSPHRASE -out $JWT_SECRET_KEY -aes256 4096
   - openssl rsa -pubout -in $JWT_SECRET_KEY -passin pass:$JWT_PASSPHRASE -out $JWT_PUBLIC_KEY
+  - ls -la $PATH_APP
+  - ls -la $PATH_APP/config
+  - ls -la $PATH_APP/config/jwt
 
 install:
   - docker-compose build
