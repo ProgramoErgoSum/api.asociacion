@@ -14,8 +14,8 @@ env:
     - APP_ENV: test
     - DATABASE_URL: mysql://db_user:db_pass@mysql:3306/db_name
     - SYMFONY_DEPRECATIONS_HELPER: disabled
-    - JWT_SECRET_KEY: web/config/jwt/private.pem
-    - JWT_PUBLIC_KEY: web/config/jwt/public.pem
+    - JWT_SECRET_KEY: $PATH_APP/config/jwt/private.pem
+    - JWT_PUBLIC_KEY: $PATH_APP/config/jwt/public.pem
     - JWT_PASSPHRASE: s$cretf0rt3st
     - JWT_TOKENTTL: 3600
 
@@ -29,6 +29,7 @@ before_install:
   - cp $PATH_APP/phpunit.xml.dist $PATH_APP/phpunit.xml
   - openssl genrsa -passout pass:$JWT_PASSPHRASE -out $JWT_SECRET_KEY -aes256 4096
   - openssl rsa -pubout -in $JWT_SECRET_KEY -passin pass:$JWT_PASSPHRASE -out $JWT_PUBLIC_KEY
+  - chmod -R 777 web/config/jwt
 
 install:
   - docker-compose build
@@ -45,4 +46,4 @@ before_script:
   - docker-compose exec phpfpm php bin/console doctrine:fixtures:load --no-interaction
 
 script:
-  - docker-compose exec phpfpm phpunit tests
+  - docker-compose exec phpfpm php bin/phpunit tests
