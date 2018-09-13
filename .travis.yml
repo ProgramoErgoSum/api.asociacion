@@ -43,6 +43,8 @@ before_script:
   - docker-compose exec phpfpm php bin/console doctrine:database:create
   - docker-compose exec phpfpm php bin/console doctrine:schema:update --force
   - docker-compose exec phpfpm php bin/console doctrine:fixtures:load --no-interaction
+  - cp $PATH_APP/.env.dist $PATH_APP/.env
+  - cp $PATH_APP/phpunit.xml.dist $PATH_APP/phpunit.xml
 
 script:
   - docker-compose exec phpfpm php bin/phpunit tests
