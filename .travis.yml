@@ -1,47 +1,50 @@
-language: php
-
-php:
-  - 7.2
-
-sudo: false
+sudo: required
 
 branches:
   only:
+    - develop
     - master
 
-cache:
-  directories:
-    - $HOME/.composer/cache
-    
+services:
+  - docker
+
 env:
   global:
+    - PATH_APP: web/
     - APP_ENV: test
-    - DATABASE_URL: mysql://root:@127.0.0.1:3306/test
+    - DATABASE_URL: mysql://db_user:db_pass@mysql:3306/db_name
     - SYMFONY_DEPRECATIONS_HELPER: disabled
     - JWT_SECRET_KEY: config/jwt/private.pem
     - JWT_PUBLIC_KEY: config/jwt/public.pem
     - JWT_PASSPHRASE: s$cretf0rt3st
     - JWT_TOKENTTL: 3600
 
-services:
-  - mysql
+cache:
+  directories:
+    - $HOME/.composer/cache
 
 before_install:
-  - composer self-update
   - cp .env.dist .env
-  - cp phpunit.xml.dist phpunit.xml
-  - openssl genrsa -passout pass:$JWT_PASSPHRASE -out $JWT_SECRET_KEY -aes256 4096
-  - openssl rsa -pubout -in $JWT_SECRET_KEY -passin pass:$JWT_PASSPHRASE -out $JWT_PUBLIC_KEY
+  - cp $PATH_APP/.env.dist $PATH_APP/.env
+  - cp $PATH_APP/phpunit.xml.dist $PATH_APP/phpunit.xml
+  - openssl genrsa -passout pass:$JWT_PASSPHRASE -out $PATH_APP/$JWT_SECRET_KEY -aes256 4096
+  - openssl rsa -pubout -in $PATH_APP/$JWT_SECRET_KEY -passin pass:$JWT_PASSPHRASE -out $PATH_APP/$JWT_PUBLIC_KEY
 
 install:
-  - composer install
-  - mysql -e 'create database test;'
+  - docker-compose build
+  - docker-compose up -d
+  - docker-compose ps
 
 before_script:
-  - php bin/console doctrine:database:drop --force
-  - php bin/console doctrine:database:create
-  - php bin/console doctrine:schema:update --force
-  - php bin/console doctrine:fixtures:load --no-interaction
+  - docker-compose exec phpfpm composer self-update
+  - docker-compose exec phpfpm composer config extra.symfony.allow-contrib true
+  - docker-compose exec phpfpm composer update
+  - docker-compose exec phpfpm php bin/console doctrine:database:drop --force
+  - docker-compose exec phpfpm php bin/console doctrine:database:create
+  - docker-compose exec phpfpm php bin/console doctrine:schema:update --force
+  - docker-compose exec phpfpm php bin/console doctrine:fixtures:load --no-interaction
+  - cp $PATH_APP/.env.dist $PATH_APP/.env
+  - cp $PATH_APP/phpunit.xml.dist $PATH_APP/phpunit.xml
 
 script:
-  - phpunit
+  - docker-compose exec phpfpm php bin/phpunit tests

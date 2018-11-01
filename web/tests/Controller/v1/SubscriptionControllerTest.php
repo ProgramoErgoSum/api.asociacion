@@ -5,7 +5,7 @@ namespace App\Tests\Controller\v1;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response; //https://api.symfony.com/4.1/Symfony/Component/HttpFoundation/Response.html
 
-class PartnerControllerTest extends WebTestCase
+class SubscriotionControllerTest extends WebTestCase
 {
     private $client = null;
 
@@ -26,7 +26,7 @@ class PartnerControllerTest extends WebTestCase
     {
         $client = $this->client;
         $post = ['_username'=>'admin','_password'=>'pa$$w0rd'];
-        $client->request('POST', '/tokens', $post);
+        $client->request('POST', '/api/v1/tokens', $post);
         $response = $client->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -35,13 +35,13 @@ class PartnerControllerTest extends WebTestCase
 
         return $client;
     }
-
+    
 
 
     /**
-     * @dataProvider provide_partners_HTTP_UNAUTHORIZED
+     * @dataProvider provide_subscriptions_HTTP_UNAUTHORIZED
      */
-    public function test_partners_HTTP_UNAUTHORIZED($method = null, $url = null, $post = [])
+    public function test_subscriptions_HTTP_UNAUTHORIZED($method = null, $url = null, $post = [])
     {
         $client = $this->client;
         $client->request($method, $url, $post);
@@ -52,14 +52,14 @@ class PartnerControllerTest extends WebTestCase
         $this->assertSame('application/json', $response->headers->get('content-type'));
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $content['code']);
     }
-    public function provide_partners_HTTP_UNAUTHORIZED()
+    public function provide_subscriptions_HTTP_UNAUTHORIZED()
     {
         return [
-            ['GET',     '/api/v1/partners',     []],
-            ['GET',     '/api/v1/partners/1',   []],
-            ['POST',    '/api/v1/partners',     []],
-            ['PATCH',   '/api/v1/partners/1',   []],
-            ['DELETE',  '/api/v1/partners/1',   []],
+            ['GET',     '/api/v1/partners/1/subscriptions',     []],
+            ['GET',     '/api/v1/partners/1/subscriptions/1',   []],
+            ['POST',    '/api/v1/partners/1/subscriptions',     []],
+            ['PATCH',   '/api/v1/partners/1/subscriptions/1',   []],
+            ['DELETE',  '/api/v1/partners/1/subscriptions/1',   []],
         ];
     }
 
@@ -72,12 +72,12 @@ class PartnerControllerTest extends WebTestCase
     // GET
 
 
-    
-    public function test_GET_partners_HTTP_OK()
+
+    public function test_GET_subscriptions_HTTP_OK()
     {
         $client = $this->createAuthenticatedClient();
 
-        $client->request('GET', '/api/v1/partners');
+        $client->request('GET', '/api/v1/partners/1/subscriptions');
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
 
@@ -86,11 +86,11 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals('4', count($content));
     }
 
-    public function test_GET_partners_id_HTTP_OK()
+    public function test_GET_subscriptions_id_HTTP_OK()
     {
         $client = $this->createAuthenticatedClient();
 
-        $client->request('GET', '/api/v1/partners/1');
+        $client->request('GET', '/api/v1/partners/1/subscriptions/1');
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
 
@@ -99,11 +99,14 @@ class PartnerControllerTest extends WebTestCase
         $this->assertEquals('1', $content['id']);
     }
 
-    public function test_GET_partners_id_HTTP_BAD_REQUEST()
+    /**
+     * @dataProvider provide_test_GET_subscriptions_HTTP_BAD_REQUEST
+     */
+    public function test_GET_subscriptions_HTTP_BAD_REQUEST($url = null)
     {
         $client = $this->createAuthenticatedClient();
-        
-        $client->request('GET', '/api/v1/partners/0');
+
+        $client->request('GET', $url);
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
 
@@ -111,35 +114,43 @@ class PartnerControllerTest extends WebTestCase
         $this->assertSame('application/json', $response->headers->get('content-type'));
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $content['code']);
     }
-    
+    public function provide_test_GET_subscriptions_HTTP_BAD_REQUEST()
+    {
+        return array(
+            array('/api/v1/partners/0/subscriptions'),
+            array('/api/v1/partners/0/subscriptions/1'),
+            array('/api/v1/partners/1/subscriptions/0'),
+        );
+    }
+
 
 
     // POST
 
-    
 
-    public function test_POST_partners_HTTP_CREATED()
+
+    public function test_POST_subscriptions_HTTP_CREATED()
     {
         $client = $this->createAuthenticatedClient();
-        
-        $post = ['name'=>'name','surname'=>'surname','email'=>'email@email.com','active'=>'1','role'=>'1'];
-        $client->request('POST', '/api/v1/partners', $post);
+
+        $post = array('inDate'=>'2019-01-01','outDate'=>'2020-01-01','info'=>'info','price'=>'1.1');
+        $client->request('POST', '/api/v1/partners/1/subscriptions', $post);
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
 
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
-        $this->assertEquals('5', count($content));   
+        $this->assertEquals('5', count($content));
     }
 
     /**
-     * @dataProvider provide_POST_partners_HTTP_BAD_REQUEST
+     * @dataProvider provide_POST_subscriptions_HTTP_BAD_REQUEST
      */
-    public function test_POST_partners_HTTP_BAD_REQUEST($post = null)
+    public function test_POST_subscriptions_HTTP_BAD_REQUEST($data)
     {
         $client = $this->createAuthenticatedClient();
 
-        $client->request('POST', '/api/v1/partners', $post);
+        $client->request('POST', '/api/v1/partners/1/subscriptions', $data);
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
 
@@ -147,22 +158,21 @@ class PartnerControllerTest extends WebTestCase
         $this->assertSame('application/json', $response->headers->get('content-type'));
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $content['code']);
     }
-    public function provide_POST_partners_HTTP_BAD_REQUEST()
+    public function provide_POST_subscriptions_HTTP_BAD_REQUEST()
     {
         return [
             [[]],
-            [[               'surname'=>'surname','email'=>'email','active'=>'1','role'=>'1']],
-            [['name'=>'name'                     ,'email'=>'email','active'=>'1','role'=>'1']],
-            [['name'=>'name','surname'=>'surname'                 ,'active'=>'1','role'=>'1']],
-            [['name'=>'name','surname'=>'surname','email'=>'email'              ,'role'=>'1']],
-            [['name'=>'name','surname'=>'surname','email'=>'email','active'=>'1'            ]],
+            [[                 'outDate'=>'date','info'=>'info','price'=>'1']],
+            [['inDate'=>'date'                  ,'info'=>'info','price'=>'1']],
+            [['inDate'=>'date','outDate'=>'date'               ,'price'=>'1']],
+            [['inDate'=>'date','outDate'=>'date','info'=>'info'             ]],
+            [['inDate'=>'date','outDate'=>'date','info'=>'info','price'=>'1']],
             
-            [['name'=>'','surname'=>'surname','email'=>'email','active'=>'1','role'=>'1']],                 // name
-            [['name'=>'name','surname'=>'','email'=>'email','active'=>'1','role'=>'1']],                    // surname
-            [['name'=>'name','surname'=>'surname','email'=>'email','active'=>'1','role'=>'1']],             // email
-            [['name'=>'name','surname'=>'surname','email'=>'e@e.e','active'=>'a','role'=>'1']],             // active
-            [['name'=>'name','surname'=>'surname','email'=>'e@e.e','active'=>'1','role'=>'a']],             // role
-            [['name'=>'name','surname'=>'surname','email'=>'email1@email.com','active'=>'1','role'=>'1']],  // email exist
+            [['inDate'=>'BAD','outDate'=>'2018-08-02','info'=>'info','price'=>'1']],                    // fecha
+            [['inDate'=>'02-08-2018','outDate'=>'2018-08-02','info'=>'info','price'=>'1']],             // fecha
+            [['inDate'=>'2018-08-02 00:00:00','outDate'=>'2018-08-02','info'=>'info','price'=>'1']],    // fecha
+            [['inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'','price'=>'1']],                 // info
+            [['inDate'=>'2018-08-02','outDate'=>'2019-08-02','info'=>'info','price'=>'BAD']],           // precio
         ];
     }
 
@@ -173,40 +183,38 @@ class PartnerControllerTest extends WebTestCase
 
 
     /**
-     * @dataProvider provide_PATCH_partners_HTTP_CREATED
+     * @dataProvider provide_PATCH_subscriptions_HTTP_CREATED
      */
-    public function test_PATCH_partners_HTTP_CREATED($post = null)
+    public function test_PATCH_subscriptions_HTTP_CREATED($post = null)
     {
         $client = $this->createAuthenticatedClient();
 
-        $client->request('PATCH', '/api/v1/partners/1', $post);
+        $client->request('PATCH', '/api/v1/partners/1/subscriptions/1', $post);
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
 
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
-        $this->assertSame('application/json', $response->headers->get('content-type'));        
-        $this->assertEquals($post[key($post)], $content[key($post)]);  
+        $this->assertSame('application/json', $response->headers->get('content-type'));
+        $this->assertEquals($post[key($post)], $content[key($post)]);
     }
-    public function provide_PATCH_partners_HTTP_CREATED()
+    public function provide_PATCH_subscriptions_HTTP_CREATED()
     {
         return [
-            [['name'=>'nuevo']],
-            [['surname'=>'nuevo']],
-            [['email'=>'nuevo@email.com']],
-            //[['password'=>'nuevo']],
-            [['active'=>'0']],
-            [['role'=>'0']],
+            //[['inDate'=>'2015-12-31']],
+            //[['outDate'=>'2015-12-31']],
+            [['info'=>'nueva']],
+            [['price'=>'1.2']],
         ];
     }
 
     /**
-     * @dataProvider provide_PATCH_partners_HTTP_BAD_REQUEST
+     * @dataProvider provide_PATCH_subscriptions_HTTP_BAD_REQUEST
      */
-    public function test_PATCH_partners_HTTP_BAD_REQUEST($post = null)
+    public function test_PATCH_subscriptions_HTTP_BAD_REQUEST($post = null)
     {
         $client = $this->createAuthenticatedClient();
 
-        $client->request('PATCH', '/api/v1/partners/1', $post);
+        $client->request('PATCH', '/api/v1/partners/1/subscriptions/1', $post);
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
 
@@ -214,17 +222,16 @@ class PartnerControllerTest extends WebTestCase
         $this->assertSame('application/json', $response->headers->get('content-type'));
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $content['code']);
     }
-    public function provide_PATCH_partners_HTTP_BAD_REQUEST()
+    public function provide_PATCH_subscriptions_HTTP_BAD_REQUEST()
     {
         return [
             [[]],
-            [['name'=>'']],
-            [['surname'=>'']],
-            [['email'=>'email no válido']],
-            [['email'=>'email1@email.com']],
-            [['password'=>'']],
-            [['active'=>'a']],
-            [['role'=>'a']],
+            [['inDate'=>'']],
+            [['inDate'=>'BAD']],
+            [['outDate'=>'BAD']],
+            [['info'=>'']],
+            [['price'=>'a']],
+            [['price'=>'1,5']],
         ];
     }
 
@@ -234,36 +241,23 @@ class PartnerControllerTest extends WebTestCase
 
 
 
-    public function test_DELETE_partners_HTTP_ACCEPTED()
+    public function test_DELETE_subscriptions_HTTP_ACCEPTED()
     {
         $client = $this->createAuthenticatedClient();
 
-        $client->request('DELETE', '/api/v1/partners/3');
+        $client->request('DELETE', '/api/v1/partners/1/subscriptions/1');
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
 
         $this->assertEquals(Response::HTTP_ACCEPTED, $response->getStatusCode());
         $this->assertSame('application/json', $response->headers->get('content-type'));
     }
-    
-    public function test_DELETE_partners_HTTP_PARTIAL_CONTENT()
+
+    public function test_DELETE_subscriptions_HTTP_BAD_REQUEST()
     {
         $client = $this->createAuthenticatedClient();
 
-        $client->request('DELETE', '/api/v1/partners/1');
-        $response = $client->getResponse();
-        $content = json_decode($response->getcontent(), true);
-
-        $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $response->getStatusCode());
-        $this->assertSame('application/json', $response->headers->get('content-type'));
-        $this->assertEquals(Response::HTTP_PARTIAL_CONTENT, $content['code']);
-    }
-
-    public function test_DELETE_partners_HTTP_BAD_REQUEST()
-    {
-        $client = $this->createAuthenticatedClient();
-
-        $client->request('DELETE', '/api/v1/partners/0');
+        $client->request('DELETE', '/api/v1/partners/1/subscriptions/0');
         $response = $client->getResponse();
         $content = json_decode($response->getcontent(), true);
 
@@ -271,5 +265,5 @@ class PartnerControllerTest extends WebTestCase
         $this->assertSame('application/json', $response->headers->get('content-type'));
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $content['code']);
     }
-
+    
 }

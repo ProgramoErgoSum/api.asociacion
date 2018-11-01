@@ -1,15 +1,16 @@
 {
     "name": "ProgramoErgoSum/api.asociacion",
-    "description": "API REST Ful SF4",
+    "description": "Backend asociación",
     "type": "project",
     "license": "MIT",
     "require": {
         "php": "^7.2",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "friendsofsymfony/rest-bundle": "^2.3",
+        "friendsofsymfony/rest-bundle": "^2.4",
         "jms/serializer-bundle": "^2.4",
         "lexik/jwt-authentication-bundle": "^2.5",
+        "nelmio/cors-bundle": "^1.5",
         "symfony/console": "^4.1",
         "symfony/flex": "^1.0",
         "symfony/framework-bundle": "^4.1",

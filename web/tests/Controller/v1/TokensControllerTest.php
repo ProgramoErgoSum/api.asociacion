@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Controller;
+namespace App\Tests\Controller\v1;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +20,7 @@ class TokensControllerTest extends WebTestCase
     public function test_POST_tokens_HTTP_OK($post = null)
     {
         $client = $this->client;
-        $client->request('POST', '/tokens', $post);
+        $client->request('POST', '/api/v1/tokens', $post);
         $response = $client->getResponse();
         $content = json_decode($response->getContent(), true);
 
@@ -41,7 +41,7 @@ class TokensControllerTest extends WebTestCase
     public function test_POST_tokens_HTTP_BAD_REQUEST($post = null)
     {
         $client = $this->client;
-        $client->request('POST', '/tokens', $post);
+        $client->request('POST', '/api/v1/tokens', $post);
         $response = $client->getResponse();
         $content = json_decode($response->getContent(), true);
 
